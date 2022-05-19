@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import random
 
 # from keep_alive import keep_alive
+# from dialogue import DialogueTree
 
 load_dotenv()
 
@@ -29,13 +30,14 @@ async def on_ready():
                 pass_context=True
                 )
 async def hello(context):
-    possible_responses = [
+    responses = [
         'Greetings, hatchling!',
         'Hi there!',
         'Hello!',
-        'What brings you to the Lunar Outpost on this fine day?'
+        'Nice lunar weather we\'re having...',
+        'Welcome to the Lunar Outpost! I don\'t get visitors very often...'
     ]
-    await context.send(random.choice(possible_responses))
+    await context.send(random.choice(responses))
 
 
 @client.command(name='dialogue',
@@ -45,8 +47,11 @@ async def hello(context):
                 pass_context=True
                 )
 async def dialogue(context):
-    # figure out how to recreate dialogue system
-    await context.send("INVALID DIALOGUE OPTION! \*whistles angrily\*")
+    """ TODO: figure out how to recreate dialogue system
+    this is honestly such an entangled mess to work through - ignore for now """
+    # dtree = DialogueTree(dialogue.NODES, 'start')
+    # await dtree.evaluate(dtree.nodes[0])
+    await context.send("sorry pal i gotta develop a dialogue system first")
 
 
 @client.command(name='mallow',
