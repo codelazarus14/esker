@@ -53,8 +53,8 @@ class Node:
 
 
 NODES = {
-    'start': Node("Oh, hey, it’s you! Ground control didn’t tell me you were launching. Long time no see!\n"
-                  + "Actually, I guess it’s been a long time since I’ve seen anyone.",
+    'start': Node("Oh, hey, it’s you! Ground control didn’t tell me you were launching. Long time no see!\n"\
+                  "Actually, I guess it’s been a long time since I’ve seen anyone.",
                   {}, is_exit=True)
 }
 

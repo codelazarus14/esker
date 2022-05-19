@@ -24,7 +24,7 @@ async def on_ready():
 
 # Esker says hi!
 @client.command(name='hello',
-                description='Ask how our old friend is doing.',
+                description='Say hi to an old friend.',
                 brief='Say hello',
                 aliases=['hi', 'greetings'],
                 pass_context=True
@@ -37,7 +37,7 @@ async def hello(context):
         'Nice lunar weather we\'re having...',
         'Welcome to the Lunar Outpost! I don\'t get visitors very often...'
     ]
-    await context.send(random.choice(responses))
+    await context.send(chat_styler(random.choice(responses)))
 
 
 @client.command(name='dialogue',
@@ -55,14 +55,14 @@ async def dialogue(context):
 
 
 @client.command(name='mallow',
-                description='Toast a marshmallow to your liking, or even to a crisp.',
+                description='Toast a marshmallow to your liking, or even burn it to a crisp.',
                 brief='Toast a marshmallow',
                 aliases=['marshmallow'],
                 pass_context=True
                 )
 async def mallow(context):
     # marshmallow minigame w pixel art or maybe just numbers for now
-    await context.send("NO MALLOWS FOR YOU!")
+    await context.send(chat_styler("NO MALLOWS FOR YOU!"))
 
 
 @client.command(name='tunes',
@@ -74,13 +74,15 @@ async def mallow(context):
 async def tunes(context):
     # Reply with a random OST link if in text chat
     # in voice, put YouTube playlist of OST on shuffle
-    await context.send("Damn phonograph is busted... again.")
+    await context.send(chat_styler("Looks like the tape player is broken... again. Maybe I can ask Hornfels about it "
+                                   "the next time they check up on me. They oughta be able to get Slate's engineering "
+                                   "genius on board."))
 
 
-@client.command(name='rock_assignment',
+@client.command(name='rock_assn',
                 description='Discover your true Hearthian name!',
                 brief='Assigned rock at slash command',
-                aliases=['rock', 'rock_assn', 'ra'],
+                aliases=['rock', 'rock_assignment', 'ra'],
                 pass_context=True
                 )
 async def rock_assn(context):
@@ -90,7 +92,15 @@ async def rock_assn(context):
     # Lists are indexed in python - just dynamic arrays really
     rocks = ["Granite"]
     rock_index = 0  # generate from hash function
-    await context.send("I reckon you'd make a fine " + rocks[rock_index] + ", hatchling!")
+    await context.send(chat_styler("I reckon you'd make a fine " + rocks[rock_index] + ", hatchling!"))
+
+
+def chat_styler(text):
+    """used to style text for fancy chat output"""
+    # TODO: center bold paragraph above the orange line for immersive purposes
+    return "**\n" + text + "**\n```css" \
+                           "\n[----------------------------------------------" \
+                           "-------------------------------------------------]```"
 
 
 # keep_alive()
