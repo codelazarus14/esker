@@ -1,11 +1,7 @@
-# Esker's heart and soul
 import discord.ext.commands
 import os
 from dotenv import load_dotenv
 import random
-
-# from keep_alive import keep_alive
-# from dialogue import DialogueTree
 
 load_dotenv()
 
