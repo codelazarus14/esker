@@ -10,7 +10,7 @@ import random
 load_dotenv()
 
 TOKEN = os.getenv('RYTHM_BOT_SECRET')  # secret token for bot to run
-BOT_PREFIX = ['~', 'e.']  # prefixes for bot slash commands
+BOT_PREFIX = ['/']  # prefixes for bot slash commands
 
 # TODO: make Cogs for different slash command types: https://docs.pycord.dev/en/master/ext/commands/cogs.html
 
