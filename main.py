@@ -31,18 +31,16 @@ async def on_ready():
                 )
 async def hello(context):
     responses = [
-        'Greetings, hatchling!',
+        'Greetings, fellow traveler!',
         'Hi there!',
-        'Hello!',
-        'Nice lunar weather we\'re having...',
-        'Welcome to the Lunar Outpost! I don\'t get visitors very often...'
+        'Hello!'
     ]
     await context.send(random.choice(responses))
 
 
 def chat_styler(text):
     """used to style text for fancy chat output"""
-    # TODO: center bold paragraph above the orange line for immersive purposes
+    # TODO: try using rythm-style embed if i feel up for it
     return "**\n" + text + "**\n```css" \
                            "\n[----------------------------------------------" \
                            "-------------------------------------------------]```"
