@@ -48,7 +48,9 @@ async def hello(context):
                 )
 async def dialogue(context):
     """ TODO: figure out how to recreate dialogue system
-    this is honestly such an entangled mess to work through - ignore for now """
+    this is honestly such an entangled mess to work through, and it might not pay off
+    if we just end up using ephemeral messages to have 1-on-1s with each participant.
+    could lucabot it - randomly spit out favorite esker quotes in the meantime"""
     # dtree = DialogueTree(dialogue.NODES, 'start')
     # await dtree.evaluate(dtree.nodes[0])
     await context.send("sorry pal i gotta develop a dialogue system first")
