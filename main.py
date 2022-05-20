@@ -21,7 +21,7 @@ async def on_ready():
 @client.event
 async def on_message(message):
     if client.user.mentioned_in(message) and message.content == client.user.mention:
-        await message.channel.send(chat_styler("My prefixes are `{}`".format(BOT_PREFIX)))
+        await message.channel.send(chat_styler('My prefixes are `{}`'.format(BOT_PREFIX)))
     await client.process_commands(message)
 
 
@@ -47,7 +47,21 @@ async def hello(context):
                 pass_context=True
                 )
 async def play(context):
-    return
+    user = context.author
+    # get user VoiceChannel
+    user_voice = user.voice
+    if user_voice is not None:
+        channel = user_voice.channel
+        await context.send(f'Joining channel `#{channel.name}`')
+        # create player with audio source
+        voice_client = await channel.connect()
+        # temporary - replace with streamed audio from YouTube
+        audio_source = discord.FFmpegPCMAudio('C:/Users/samed/PycharmProjects/esker/Ugly God FTBT.mp3')
+        if not voice_client.is_playing():
+            voice_client.play(audio_source, after=lambda e: print('Done playing audio', e))
+        # once audio finishes, bot goes quiet - wait for timeout or disconnect..
+    else:
+        await context.send('User is not in a voice channel')
 
 
 def chat_styler(text):
