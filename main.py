@@ -18,7 +18,7 @@ async def on_ready():
     print('Logged in as {0.user}'.format(client))
 
 
-# Esker says hi!
+# Rythm says hi!
 @client.command(name='hello',
                 description='Say hi to an old friend.',
                 brief='Say hello',
@@ -42,5 +42,4 @@ def chat_styler(text):
                            "-------------------------------------------------]```"
 
 
-# keep_alive()
 client.run(TOKEN)
