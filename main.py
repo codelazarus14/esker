@@ -13,6 +13,10 @@ TOKEN = os.getenv('ESKER_BOT_SECRET')  # secret token for bot to run
 BOT_PREFIX = ['~', 'e.']  # prefixes for bot slash commands
 
 # TODO: make Cogs for different slash command types: https://docs.pycord.dev/en/master/ext/commands/cogs.html
+"""Ideas: 
+add e.define = search outer wilds fan wiki for title of article + respond w intro paragraph
+override help/make pretty with embedded thing like sheep/rythm or don't idk
+"""
 
 client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX)
 
@@ -20,6 +24,14 @@ client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX)
 @client.event
 async def on_ready():
     print('Logged in as {0.user}'.format(client))
+
+
+@client.event
+async def on_message(message):
+    if client.user.mentioned_in(message) and message.content == client.user.mention:
+        await message.channel.send(chat_styler("My prefixes are `{}`".format(BOT_PREFIX)))
+    # important! default on_message() is being overridden - pass message onto commands
+    await client.process_commands(message)
 
 
 # Esker says hi!
