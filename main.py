@@ -48,7 +48,8 @@ async def hello(context):
                 )
 async def dialogue(context):
     """ TODO: figure out how to recreate dialogue system
-    this is honestly such an entangled mess to work through - ignore for now """
+    this is honestly such an entangled mess to work through - maybe replace with
+    lucabot-style random line regurgitation """
     # dtree = DialogueTree(dialogue.NODES, 'start')
     # await dtree.evaluate(dtree.nodes[0])
     await context.send("sorry pal i gotta develop a dialogue system first")
@@ -86,12 +87,11 @@ async def tunes(context):
                 pass_context=True
                 )
 async def rock_assn(context):
-    # Hash their username? and then use algorithm to decide
-    # what their rock is from a list of possibilities
-
-    # Lists are indexed in python - just dynamic arrays really
-    rocks = ["Granite"]
-    rock_index = 0  # generate from hash function
+    # list of rocks from https://en.wikipedia.org/wiki/List_of_rock_types
+    rocks = ["Arkose", "Basalt", "Breccia", "Gypsum", "Caliche", "Coquina", "Flint", "Ijolite"
+             "Mariposite", "Skarn", "Pyrite", "Schist", "Scoria", "Shale", "Tufa"]
+    # generate rock name from user id
+    rock_index = abs(hash(context.author.id)) % len(rocks)
     await context.send(chat_styler("I reckon you'd make a fine " + rocks[rock_index] + ", hatchling!"))
 
 
