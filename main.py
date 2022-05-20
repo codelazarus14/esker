@@ -18,7 +18,13 @@ async def on_ready():
     print('Logged in as {0.user}'.format(client))
 
 
-# Rythm says hi!
+@client.event
+async def on_message(message):
+    if client.user.mentioned_in(message) and message.content == client.user.mention:
+        await message.channel.send(chat_styler("My prefixes are `{}`".format(BOT_PREFIX)))
+    await client.process_commands(message)
+
+
 @client.command(name='hello',
                 description='Say hi to an old friend.',
                 brief='Say hello',
@@ -32,6 +38,16 @@ async def hello(context):
         'Hello!'
     ]
     await context.send(random.choice(responses))
+
+
+@client.command(name='play',
+                description='Wanna listen to some tunes?',
+                brief='Do you hear music?',
+                aliases=[],
+                pass_context=True
+                )
+async def play(context):
+    return
 
 
 def chat_styler(text):
