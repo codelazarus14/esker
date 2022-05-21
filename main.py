@@ -1,4 +1,4 @@
-import asyncio
+# import asyncio
 
 import discord.ext.commands
 import os
@@ -16,7 +16,7 @@ BOT_PREFIX = ['/', 'rr.', 'rr ']  # prefixes for bot slash commands
     on shutdown, bot leaves voice channels
 '''
 client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX)
-audio_queue = []  # list of AudioSources to be created in play()
+audio_queue: list[discord.AudioSource] = []  # list of AudioSources to be created in play()
 
 
 @client.event
@@ -67,7 +67,7 @@ async def play(context):
 
         # keep playing audio until queue exhausted
         if not vc.is_playing():
-            # TODO: make this actually resume playing instead of just swapping sources
+            # TODO: use play_next() merged from get_next w recursive call from after= to get .play looping
             vc.play(audio_queue[0], after=lambda e: get_next_source(vc, context))
     await context.send(msg)
 
@@ -147,7 +147,7 @@ async def clear(context):
 def get_next_source(vc: discord.VoiceClient, context):
     vc.pause()
     if len(audio_queue) > 0:
-        audio_queue.pop(0)
+        del audio_queue[0]
         # still another audio source in the queue? swap it in
         if len(audio_queue) > 0:
             vc.source = audio_queue[0]
