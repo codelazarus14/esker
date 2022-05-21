@@ -1,3 +1,5 @@
+import asyncio
+
 import discord.ext.commands
 import os
 from dotenv import load_dotenv
@@ -89,6 +91,14 @@ def chat_styler(text):
                            "\n[----------------------------------------------" \
                            "-------------------------------------------------]```"
 
+
+async def list_servers():
+    await client.wait_until_ready()
+    while not client.is_closed:
+        print("Current servers:")
+        for server in client.guilds:
+            print(server.name)
+        await asyncio.sleep(600)
 
 client.run(TOKEN)
 # see https://discordpy.readthedocs.io/en/stable/ext/commands/api.html?highlight=bot#discord.ext.commands.Bot.run
