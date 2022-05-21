@@ -111,7 +111,7 @@ async def rock_assn(context):
 
 def chat_styler(text):
     """used to style text for fancy chat output"""
-    # TODO: center bold paragraph above the orange line for immersive purposes
+    # TODO: redesign chat styler to be mobile-friendly.. maybe remove orange line
     return "**\n" + text + "**\n```css" \
                            "\n[----------------------------------------------" \
                            "-------------------------------------------------]```"
@@ -121,7 +121,7 @@ async def list_servers():
     await client.wait_until_ready()
     while not client.is_closed:
         print("Current servers:")
-        for server in client.servers:
+        for server in client.guilds:
             print(server.name)
         await asyncio.sleep(600)
 
