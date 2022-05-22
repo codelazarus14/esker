@@ -16,6 +16,7 @@ BOT_PREFIX = ['~', 'e.']  # prefixes for bot slash commands
 
 # TODO: make Cogs + files for different slash command types: https://docs.pycord.dev/en/master/ext/commands/cogs.html
 #   add e.define = search outer wilds fan wiki for title of article + respond w intro paragraph
+#   add e.stars/constellation = like the tumblr post but uses asyncio over 22 mins to slowly remove them, also mogus
 #   override help/make pretty with embedded thing like sheep/rythm or don't idk
 
 client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX)
