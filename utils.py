@@ -1,4 +1,11 @@
+import json
+
 import discord
+import discord.ext.commands
+
+
+class BadEmbedTypeError(ValueError):
+    """Error when given bad embed format"""
 
 
 async def join_voice_channel(client, context, user_voice):
@@ -43,28 +50,28 @@ def skip_to_next(vc: discord.VoiceClient, audio_queue):
     return msg
 
 
-def make_embed() -> discord.Embed:
-    """used to style text for fancy chat output given a properly-formatted
-    dict of content - possibly created by helper?"""
-    test_dict = {
-        'author': {
-            'name': 'bot-name',
-            'icon_url': 'https://penis.com'
-        },
-        'fields': [{
-            'name': 'Title',
-            'value': 'Body here'
-        }]
+def make_embed(embed_type: int, aq: list[discord.AudioSource], vc: discord.VoiceClient) -> discord.Embed:
+    """Creates an embed for putting in chat given a format type
+    that should match context from which make_embed() is called
+    """
+    type_to_file = {
+        0: 'queue-embed'
     }
+    if embed_type not in type_to_file:
+        raise BadEmbedTypeError
+    # find corresponding json file with dict
+    with open(f'json/{type_to_file[embed_type]}.json', 'r') as embed_json:
+        embed_dict = json.load(embed_json)
+        # convert dict to embed
+        embed = discord.Embed.from_dict(embed_dict)
+        # update template with data based on conditions
+        match embed_type:
+            case 0:
+                embed.add_field(name="**Currently playing: **", value=vc.source, inline=False)
 
-    e = discord.Embed.from_dict(test_dict)
-    # match msg_type:
-    #     case 1:
-    #         for x in fields_test:
-    #             e.add_field(x['title'], x['body'])
-    #     case _:
-    #         print("Invalid embed type given")
-    #         raise EmbedTypeError
-    return e
-
-    # return "**\n" + text + "**\n"
+                if len(aq) > 0:
+                    queue_str = ''
+                    for i in range(len(aq)):
+                        queue_str += f'`{i+1}.` {aq[i]}\n'
+                    embed.add_field(name="**Queue: **", value=queue_str)
+        return embed

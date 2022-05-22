@@ -13,7 +13,7 @@ TOKEN = os.getenv('RYTHM_BOT_SECRET')  # secret token for bot to run
 BOT_PREFIX = ['/', 'rr.', 'rr ']  # prefixes for bot slash commands
 
 # TODO:
-#  override default help
+#  override default help, add embed support for play() and np() based on rythm's look
 #  maybe localize message strings somewhere so i can refer to them (like a strings.xml?)
 #  build messages over the course and send one await context.send() at the end?
 #  on shutdown, bot leaves voice channels

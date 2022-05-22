@@ -3,6 +3,8 @@ from discord.ext import commands
 
 import utils
 
+# TODO: add more information to audio queue (name, track length, author etc.) and update embed
+
 
 class Music(commands.Cog):
     def __init__(self, bot):
@@ -41,15 +43,12 @@ class Music(commands.Cog):
                       aliases=['q'],
                       pass_context=True)
     async def queue(self, context: discord.ext.commands.Context):
-        # TODO: break into enumerated lines, also might depend on whether
-        #  the queue becomes a mapping of audio sources to name, length etc.
-        msg = 'Currently playing: '
         if len(self.bot.voice_clients) > 0:
             vc: discord.VoiceClient = self.bot.voice_clients[0]
             if vc.is_playing():
-                msg += f'{vc.source}'
-        msg += f'\nQueue: {self.audio_queue}'
-        await context.send(msg, embed=utils.make_embed())
+                await context.send(embed=utils.make_embed(0, self.audio_queue, vc))
+                return
+        await context.send('Nothing playing')
 
     @commands.command(name='np',
                       description='See what is currently being played',
