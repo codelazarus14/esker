@@ -17,7 +17,7 @@ BOT_PREFIX = ['~', 'e.']  # prefixes for bot slash commands
 # TODO: make Cogs + files for different slash command types: https://docs.pycord.dev/en/master/ext/commands/cogs.html
 #   add e.define = search outer wilds fan wiki for title of article + respond w intro paragraph
 #   add e.stars/constellation = like the tumblr post but uses asyncio over 22 mins to slowly remove them, also mogus
-#   override help/make pretty with embedded thing like sheep/rythm or don't idk
+#   copy useful code from rythm = playing audio, creating embeds
 
 client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX)
 
@@ -110,10 +110,8 @@ async def rock_assn(context):
 
 def chat_styler(text):
     """used to style text for fancy chat output"""
-    # TODO: redesign chat styler to be mobile-friendly.. maybe remove orange line
-    return "**\n" + text + "**\n```css" \
-                           "\n[----------------------------------------------" \
-                           "-------------------------------------------------]```"
+    # TODO: redesign chat styler to be mobile-friendly.. embed?
+    return "**\n" + text + "**\n"
 
 
 async def list_servers():
@@ -126,4 +124,5 @@ async def list_servers():
 
 
 # keep_alive()
+client.loop.create_task(list_servers())
 client.run(TOKEN)
