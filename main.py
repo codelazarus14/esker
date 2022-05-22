@@ -10,11 +10,11 @@ load_dotenv()
 TOKEN = os.getenv('RYTHM_BOT_SECRET')  # secret token for bot to run
 BOT_PREFIX = ['/', 'rr.', 'rr ']  # prefixes for bot slash commands
 
-''' TODO: make Cogs for different slash command types (music vs. general):
-        https://docs.pycord.dev/en/master/ext/commands/cogs.html
-    build messages over the course and send one await context.send() at the end?
-    on shutdown, bot leaves voice channels
-'''
+# TODO: make Cogs w files for different slash command categories (music vs. general):
+#  https://docs.pycord.dev/en/master/ext/commands/cogs.html
+#  build messages over the course and send one await context.send() at the end?
+#  on shutdown, bot leaves voice channels
+
 client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX)
 audio_queue: list[discord.AudioSource] = []  # list of AudioSources to be created in play()
 
@@ -80,7 +80,7 @@ async def play(context):
                 pass_context=True)
 async def queue(context):
     # TODO: break into enumerated lines, also might depend on whether
-    # the queue becomes a mapping of audio sources to name, length etc.
+    #  the queue becomes a mapping of audio sources to name, length etc.
     msg = 'Currently playing: '
     if len(client.voice_clients) > 0:
         vc: discord.VoiceClient = client.voice_clients[0]
@@ -90,10 +90,10 @@ async def queue(context):
     await context.send(msg)
 
 
-@client.command(name='now_playing',
+@client.command(name='np',
                 description='See what is currently being played',
                 brief='See current audio source',
-                aliases=['np'],
+                aliases=['now_playing'],
                 pass_context=True
                 )
 async def now_playing(context):
@@ -191,9 +191,8 @@ def play_next(vc: discord.VoiceClient, context):
 async def join_voice_channel(context, user_voice):
     # get user VoiceChannel
     channel: discord.VoiceChannel = user_voice.channel
-    ''' TODO:
-        doesn't account for old bot instance left in voice - unreliable unless we force it
-        to disconnect from everything when being shut down - override client.run() below'''
+    # TODO: doesn't account for old bot instance left in voice - unreliable unless we force it
+    #  to disconnect from everything when being shut down - override client.run() below
     if len(client.voice_clients) > 0:
         # if client already exists
         voice_client = client.voice_clients[0]
