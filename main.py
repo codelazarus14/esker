@@ -1,4 +1,4 @@
-# import asyncio
+import asyncio
 
 import discord.ext.commands
 import os
@@ -67,8 +67,7 @@ async def play(context):
 
         # keep playing audio until queue exhausted
         if not vc.is_playing():
-            # TODO: use play_next() merged from get_next w recursive call from after= to get .play looping
-            vc.play(audio_queue[0], after=lambda e: get_next_source(vc, context))
+            play_next(vc, context)
     await context.send(msg)
 
     # once audio finishes, bot goes quiet - wait for timeout or disconnect..
@@ -82,7 +81,28 @@ async def play(context):
 async def queue(context):
     # TODO: break into enumerated lines, also might depend on whether
     # the queue becomes a mapping of audio sources to name, length etc.
-    await context.send(f'Queue: {audio_queue}')
+    msg = 'Currently playing: '
+    if len(client.voice_clients) > 0:
+        vc: discord.VoiceClient = client.voice_clients[0]
+        if vc.is_playing():
+            msg += f'{vc.source}'
+    msg += f'\nQueue: {audio_queue}'
+    await context.send(msg)
+
+
+@client.command(name='now_playing',
+                description='See what is currently being played',
+                brief='See current audio source',
+                aliases=['np'],
+                pass_context=True
+                )
+async def now_playing(context):
+    msg = 'Currently playing: '
+    if len(client.voice_clients) > 0:
+        vc: discord.VoiceClient = client.voice_clients[0]
+        if vc.is_playing():
+            msg += f'{vc.source}'
+    await context.send(msg)
 
 
 @client.command(name='skip',
@@ -91,16 +111,16 @@ async def queue(context):
                 aliases=[],
                 pass_context=True)
 async def skip(context):
+    msg = 'Not in voice yet'
     if len(client.voice_clients) > 0:
         vc: discord.VoiceClient = client.voice_clients[0]
         if vc.is_connected() and vc.is_playing():
             # use pause = stopping the player = close it
-            await context.send('Skipping current audio')
-            get_next_source(vc, context)
+            msg = 'Skipping current audio'
+            msg += skip_to_next(vc)
         else:
-            await context.send('Nothing to skip')
-    else:
-        await context.send('Not in voice yet')
+            msg = 'Nothing to skip'
+    await context.send(msg)
 
 
 @client.command(name='join',
@@ -144,17 +164,28 @@ async def clear(context):
     await context.send('Cleared audio queue')
 
 
-def get_next_source(vc: discord.VoiceClient, context):
+def skip_to_next(vc: discord.VoiceClient):
     vc.pause()
+    msg = ''
+    # still another audio source in the queue? swap it in
     if len(audio_queue) > 0:
+        vc.source = audio_queue.pop(0)
+        vc.resume()
+        msg = f'\nNow playing {vc.source}'
+    else:
+        vc.stop()
+    return msg
+
+
+def play_next(vc: discord.VoiceClient, context):
+    if len(audio_queue) == 0:
+        print('Reached end of audio queue')
+        return
+    else:
+        curr_audio: discord.AudioSource = audio_queue[0]
+        vc.play(curr_audio, after=lambda e: play_next(vc, context))
+        print(f'Now playing {curr_audio}')
         del audio_queue[0]
-        # still another audio source in the queue? swap it in
-        if len(audio_queue) > 0:
-            vc.source = audio_queue[0]
-            vc.resume()
-            # TODO: how to announce next track without awaiting context.send()?
-            # await context.send(f'Now playing {vc.source}')
-            print(f'Now playing {vc.source}')
 
 
 async def join_voice_channel(context, user_voice):
@@ -182,15 +213,15 @@ def chat_styler(text):
     return "**\n" + text + "**\n"
 
 
-# async def list_servers():
-#     await client.wait_until_ready()
-#     while not client.is_closed:
-#         print("Current servers:")
-#         for server in client.guilds:
-#             print(server.name)
-#         await asyncio.sleep(600)
-#
-# client.loop.create_task(list_servers())
+async def list_servers():
+    await client.wait_until_ready()
+    while not client.is_closed:
+        print("Current servers:")
+        for server in client.guilds:
+            print(server.name)
+        await asyncio.sleep(600)
+
+client.loop.create_task(list_servers())
 client.run(TOKEN)
 # see https://discordpy.readthedocs.io/en/stable/ext/commands/api.html?highlight=bot#discord.ext.commands.Bot.run
 # on how to override run() and clean up tasks (disconnect from voice?)
