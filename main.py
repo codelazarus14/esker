@@ -14,11 +14,9 @@ load_dotenv()
 TOKEN = os.getenv('ESKER_BOT_SECRET')  # secret token for bot to run
 BOT_PREFIX = ['~', 'e.']  # prefixes for bot slash commands
 
-# TODO: make Cogs for different slash command types: https://docs.pycord.dev/en/master/ext/commands/cogs.html
-"""Ideas: 
-add e.define = search outer wilds fan wiki for title of article + respond w intro paragraph
-override help/make pretty with embedded thing like sheep/rythm or don't idk
-"""
+# TODO: make Cogs + files for different slash command types: https://docs.pycord.dev/en/master/ext/commands/cogs.html
+#   add e.define = search outer wilds fan wiki for title of article + respond w intro paragraph
+#   override help/make pretty with embedded thing like sheep/rythm or don't idk
 
 client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX)
 
@@ -62,8 +60,8 @@ async def hello(context):
                 )
 async def dialogue(context):
     """ TODO: figure out how to recreate dialogue system
-    this is honestly such an entangled mess to work through - maybe replace with
-    lucabot-style random line regurgitation """
+         this is honestly such an entangled mess to work through - maybe replace with
+         lucabot-style random line regurgitation """
     # dtree = DialogueTree(dialogue.NODES, 'start')
     # await dtree.evaluate(dtree.nodes[0])
     await context.send("sorry pal i gotta develop a dialogue system first")
