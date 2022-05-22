@@ -50,7 +50,12 @@ def skip_to_next(vc: discord.VoiceClient, audio_queue):
     return msg
 
 
-def make_embed(embed_type: int, aq: list[discord.AudioSource], vc: discord.VoiceClient) -> discord.Embed:
+def chat_styler(msg=str):
+    # TODO: create generic chat-styler for non-embed messages
+    return f'`{msg}`'
+
+
+def make_embed(embed_type: int, aq: list[discord.AudioSource], bot: discord.ext.commands.Bot) -> discord.Embed:
     """Creates an embed for putting in chat given a format type
     that should match context from which make_embed() is called
     """
@@ -67,6 +72,7 @@ def make_embed(embed_type: int, aq: list[discord.AudioSource], vc: discord.Voice
         # update template with data based on conditions
         match embed_type:
             case 0:
+                vc = bot.voice_clients[0]
                 embed.add_field(name="**Currently playing: **", value=vc.source, inline=False)
 
                 if len(aq) > 0:

@@ -9,7 +9,8 @@ import utils
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
-        self.audio_queue: list[discord.AudioSource] = []  # list of AudioSources added to in play()
+        self.audio_queue: list[discord.AudioSource] = []
+        """List of audio sources to be updated by play(), skip() etc."""
 
     @commands.command(name='play',
                       description='Wanna listen to some tunes?',
@@ -26,6 +27,7 @@ class Music(commands.Cog):
             vc: discord.VoiceClient = await utils.join_voice_channel(self.bot, context, user_voice)
 
             # TODO: temporary - replace with streamed audio from YouTube
+            #  and then send embed w thumbnail rather than msg
             audio_source = discord.FFmpegPCMAudio('C:/Users/samed/PycharmProjects/esker/Ugly God FTBT.mp3')
             msg = f'Adding audio {audio_source} to queue'
             self.audio_queue.append(audio_source)
@@ -45,8 +47,9 @@ class Music(commands.Cog):
     async def queue(self, context: discord.ext.commands.Context):
         if len(self.bot.voice_clients) > 0:
             vc: discord.VoiceClient = self.bot.voice_clients[0]
+            # don't bother using embed if there's nothing playing
             if vc.is_playing():
-                await context.send(embed=utils.make_embed(0, self.audio_queue, vc))
+                await context.send(embed=utils.make_embed(0, self.audio_queue, self.bot))
                 return
         await context.send('Nothing playing')
 
@@ -60,8 +63,10 @@ class Music(commands.Cog):
         msg = 'Currently playing: '
         if len(self.bot.voice_clients) > 0:
             vc: discord.VoiceClient = self.bot.voice_clients[0]
+            # don't bother using embed if there's nothing playing
             if vc.is_playing():
                 msg += f'{vc.source}'
+                # when upgrading this to embed - just use queue template
         await context.send(msg)
 
     @commands.command(name='skip',

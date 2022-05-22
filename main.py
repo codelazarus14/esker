@@ -14,6 +14,7 @@ BOT_PREFIX = ['/', 'rr.', 'rr ']  # prefixes for bot slash commands
 
 # TODO:
 #  override default help, add embed support for play() and np() based on rythm's look
+#  for *all other* non-embeds - use chat-styler()
 #  maybe localize message strings somewhere so i can refer to them (like a strings.xml?)
 #  build messages over the course and send one await context.send() at the end?
 #  on shutdown, bot leaves voice channels
@@ -33,6 +34,7 @@ async def on_ready():
 async def on_message(message):
     if client.user.mentioned_in(message) and message.content == client.user.mention:
         await message.channel.send(f'My prefixes are `{BOT_PREFIX}`')
+    # necessary - after overriding on_message() we leave rest to commands
     await client.process_commands(message)
 
 
