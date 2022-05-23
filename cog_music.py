@@ -3,14 +3,14 @@ from discord.ext import commands
 
 import utils
 
-# TODO: add more information to audio queue (name, track length, author etc.) and update embed
-
 
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
-        self.audio_queue: list[discord.AudioSource] = []
+        self.audio_queue: list[tuple] = []
         """List of audio sources to be updated by play(), skip() etc."""
+        self.curr_audio: tuple = None, None
+        """Current audio source being played"""
 
     @commands.command(name='play',
                       description='Wanna listen to some tunes?',
@@ -18,23 +18,27 @@ class Music(commands.Cog):
                       aliases=[],
                       pass_context=True
                       )
-    async def play(self, context):
+    async def play(self, context, *, query):
         user = context.author
         user_voice = user.voice
-        msg = 'User is not in a voice channel'
+        msg = ''
         # check if user in voice
         if user_voice is not None:
-            vc: discord.VoiceClient = await utils.join_voice_channel(self.bot, context, user_voice)
+            vc = await utils.join_voice_channel(self.bot, context, user_voice)
 
-            # TODO: temporary - replace with streamed audio from YouTube
-            #  and then send embed w thumbnail rather than msg
-            audio_source = discord.FFmpegPCMAudio('C:/Users/samed/PycharmProjects/esker/Ugly God FTBT.mp3')
-            msg = f'Adding audio {audio_source} to queue'
-            self.audio_queue.append(audio_source)
+            video, source = utils.search_yt(query)
+            if vc.is_playing():
+                # Only want to show when we're visibly adding to queue,
+                # append might be undone by play on first add
+                msg = f"Adding audio `{video['title']}` to queue"
+            print(f"~~~Added audio: id:{video['id']} + title:{video['title']}")
+            self.audio_queue.append((video, source))
 
             # keep playing audio until queue exhausted
             if not vc.is_playing():
-                utils.play_next(vc, context, self.audio_queue)
+                await utils.play_next(vc, context, self)
+        else:
+            msg = 'User is not in a voice channel'
         await context.send(msg)
 
         # once audio finishes, bot goes quiet - wait for timeout or disconnect..
@@ -49,9 +53,9 @@ class Music(commands.Cog):
             vc: discord.VoiceClient = self.bot.voice_clients[0]
             # don't bother using embed if there's nothing playing
             if vc.is_playing():
-                await context.send(embed=utils.make_embed(0, self.audio_queue, self.bot))
+                await context.send(embed=utils.make_embed(0, self))
                 return
-        await context.send('Nothing playing')
+        await context.send('No audio in queue')
 
     @commands.command(name='np',
                       description='See what is currently being played',
@@ -60,14 +64,13 @@ class Music(commands.Cog):
                       pass_context=True
                       )
     async def now_playing(self, context):
-        msg = 'Currently playing: '
         if len(self.bot.voice_clients) > 0:
             vc: discord.VoiceClient = self.bot.voice_clients[0]
             # don't bother using embed if there's nothing playing
             if vc.is_playing():
-                msg += f'{vc.source}'
-                # when upgrading this to embed - just use queue template
-        await context.send(msg)
+                await context.send(embed=utils.make_embed(1, self))
+                return
+        await context.send('Nothing playing')
 
     @commands.command(name='skip',
                       description='Skip the current audio being played',
@@ -75,13 +78,13 @@ class Music(commands.Cog):
                       aliases=[],
                       pass_context=True)
     async def skip(self, context):
-        msg = 'Not in voice yet'
+        msg = 'Not in voice channel'
         if len(self.bot.voice_clients) > 0:
             vc: discord.VoiceClient = self.bot.voice_clients[0]
             if vc.is_connected() and vc.is_playing():
                 # use pause = stopping the player = close it
                 msg = 'Skipping current audio'
-                msg += utils.skip_to_next(vc, self.audio_queue)
+                msg += utils.skip_to_next(vc, self)
             else:
                 msg = 'Nothing to skip'
         await context.send(msg)
@@ -119,13 +122,11 @@ class Music(commands.Cog):
                       pass_context=True
                       )
     async def disconnect(self, context):
-        msg = 'Not in voice yet'
+        msg = 'Not in voice channel'
         if len(self.bot.voice_clients) > 0:
             curr_channel: discord.VoiceChannel = self.bot.voice_clients[0].channel
             if self.bot.voice_clients[0].is_playing():
-                curr_audio: discord.AudioSource = self.audio_queue[0]
                 self.audio_queue.clear()
-                self.audio_queue.append(curr_audio)
             msg = f'Disconnected from `#{curr_channel.name}`'
             await self.bot.voice_clients[0].disconnect()
         await context.send(msg)

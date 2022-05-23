@@ -14,10 +14,10 @@ BOT_PREFIX = ['/', 'rr.', 'rr ']  # prefixes for bot slash commands
 
 # TODO:
 #  override default help, add embed support for play() and np() based on rythm's look
-#  for *all other* non-embeds - use chat-styler()
+#  https://discordpy.readthedocs.io/en/stable/ext/commands/api.html?highlight=command#helpcommand
+#  let user know if bad command given/missing arguments?
 #  maybe localize message strings somewhere so i can refer to them (like a strings.xml?)
-#  build messages over the course and send one await context.send() at the end?
-#  on shutdown, bot leaves voice channels
+#  on idle/shutdown, bot leaves voice channels
 
 client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX)
 # load commands by category
