@@ -61,7 +61,10 @@ def skip_to_next(vc: discord.VoiceClient, music_cog):
 
 
 def search_yt(query):
-    """get video from links or YouTube search"""
+    """get video from links or YouTube search
+
+    | credit to https://stackoverflow.com/questions/63647546/how-would-i-stream-audio-from-pytube-to-ffmpeg-and
+    -discord-py-without-downloadin """
     with YoutubeDL({'format': 'bestaudio', 'noplaylist': 'True'}) as ydl:
         try:
             # use query as link
