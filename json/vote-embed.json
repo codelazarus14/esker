@@ -1,13 +1,15 @@
 {
   "description": "Simple majority (>50%) needed to skip",
-  "color": 2899536,
+  "color": 3426654,
   "fields": [
     {
       "name": "Yes",
-      "value": ":white_check_mark:"
+      "value": ":white_check_mark:",
+      "inline": true
     }, {
       "name": "No",
-      "value": ":no_entry_sign:"
+      "value": ":no_entry_sign:",
+      "inline": true
     }
   ],
   "footer": {

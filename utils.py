@@ -1,3 +1,6 @@
+import math
+import time
+
 import requests
 
 import json
@@ -24,26 +27,25 @@ async def join_voice_channel(client, context, user_voice):
         # if client already exists
         voice_client = client.voice_clients[0]
         if voice_client.is_connected() and voice_client.channel is not channel:
-            await context.send(f'Moving to channel `#{channel.name}`')
+            await context.send(f'Moving to channel {emph("#" + channel.name)}')
     else:
         # create new voice client and connect to current channel
         voice_client = await channel.connect()
-        await context.send(f'Connecting to channel `#{channel.name}`')
+        await context.send(f'Connecting to channel {emph("#" + channel.name)}')
     await voice_client.move_to(channel)
     return voice_client
 
 
-async def play_next(vc: discord.VoiceClient, context, music_cog):
+def play_next(vc: discord.VoiceClient, context, music_cog):
     if len(music_cog.audio_queue) == 0:
         print('Reached end of audio queue')
         return
     else:
         music_cog.curr_audio = music_cog.audio_queue.pop(0)
-        # TODO: fix error stemming from this lambda not awaiting play_next() - once we hit base case,
-        #  the function returns and we get the error
+        music_cog.curr_audio += (time.time(),)
+        # curr_audio[2] = play() starting timestamp
         vc.play(discord.FFmpegPCMAudio(music_cog.curr_audio[1], **ffmpeg_opts),
                 after=lambda e: play_next(vc, context, music_cog))
-        await context.send(f"Now playing `{music_cog.curr_audio[0]['title']}`")
 
 
 def skip_to_next(vc: discord.VoiceClient, music_cog):
@@ -53,9 +55,10 @@ def skip_to_next(vc: discord.VoiceClient, music_cog):
     # still another audio source in the queue? swap it in
     if len(music_cog.audio_queue) > 0:
         music_cog.curr_audio = music_cog.audio_queue.pop(0)
+        music_cog.curr_audio += (time.time(),)
         vc.source = discord.FFmpegPCMAudio(music_cog.curr_audio[1], **ffmpeg_opts)
         vc.resume()
-        msg = f"\nNow playing `{music_cog.curr_audio[0]['title']}`"
+        msg = f"{music_cog.curr_audio[0]['title']}"
     else:
         vc.stop()
     return msg
@@ -78,9 +81,29 @@ def search_yt(query):
     return info, info['formats'][0]['url']
 
 
-def chat_styler(msg=str):
-    # TODO: create generic chat-styler for non-embed messages
+def emph(msg: str):
     return f'`{msg}`'
+
+
+def audio_progress(start: float, duration: float) -> str:
+    """Creates a visual representation of progress through an audio source"""
+    # TODO: add support for 1+ hour videos
+    symbols = ["⚪", "=", "-"]
+    progress = time.time() - start  # subtract current time from when bot started playing
+    percentage = progress/duration
+    timeline_size = 40
+    msg = "**`|"
+    print(f"progress: {progress}s, duration:{duration} percent: {percentage * 100}")
+    for i in range(timeline_size):
+        scaled_percentage = timeline_size * percentage
+        if i < scaled_percentage:
+            if i == math.floor(scaled_percentage):
+                msg += symbols[0]
+            else:
+                msg += symbols[1]
+        else:
+            msg += symbols[2]
+    return msg + f"|`**\n`{int(progress/60)}:{int(progress % 60):02d} / {int(duration/60)}:{int(duration % 60):02d}`"
 
 
 def make_embed(embed_type: int, music_cog, context: discord.ext.commands.Context) -> discord.Embed:
@@ -106,16 +129,17 @@ def make_embed(embed_type: int, music_cog, context: discord.ext.commands.Context
             case 0:
                 # queue = show current track and queue
                 embed.add_field(name="**Currently playing: **", value=curr_audio[0]['title'], inline=False)
+                embed.add_field(name="Progress", value=audio_progress(curr_audio[2], curr_audio[0]['duration']))
 
                 if len(aq) > 0:
                     queue_str = ''
                     for i in range(len(aq)):
-                        queue_str += f"`{i + 1}.` {aq[i][0]['title']}\n"
+                        queue_str += f"`{i + 1}.` {(aq[i][0]['title'])}\n"
                     embed.add_field(name="**Queue: **", value=queue_str)
             case 1:
                 # np = just show current track
-                # TODO: show progress through track
                 embed.add_field(name="**Currently playing: **", value=curr_audio[0]['title'], inline=False)
+                embed.add_field(name="Progress", value=audio_progress(curr_audio[2], curr_audio[0]['duration']))
             case 2:
                 embed.title = f'Vote to Skip - initiated by {context.author.name}'
         return embed
