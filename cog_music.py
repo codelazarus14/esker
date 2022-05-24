@@ -42,7 +42,7 @@ class Music(commands.Cog):
                 # Only want to update when we're visibly adding to queue,
                 # otherwise
                 msg: discord.Message = await context.channel.fetch_message(msg_id)
-                new_embed = discord.Embed(description=f"Adding audio {utils.emph(video['title'])} to queue")
+                new_embed = discord.Embed(description=f"Added audio {utils.emph(video['title'])} to queue")
             else:
                 new_embed = discord.Embed(description=f"Now playing: {utils.emph(video['title'])}")
             new_embed.colour = discord.Colour.green()

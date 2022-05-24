@@ -13,7 +13,7 @@ TOKEN = os.getenv('RYTHM_BOT_SECRET')  # secret token for bot to run
 BOT_PREFIX = ['/', 'rr.', 'rr ']  # prefixes for bot slash commands
 
 # TODO:
-#  override default help, add embed support for play() and np() based on rythm's look
+#  override default help
 #  add playskip() to merge function of play and skip
 #  get voice client from context instead of looking at voice_clients
 #  https://discordpy.readthedocs.io/en/stable/ext/commands/api.html?highlight=command#helpcommand

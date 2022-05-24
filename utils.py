@@ -87,10 +87,9 @@ def emph(msg: str):
 
 def audio_progress(start: float, duration: float) -> str:
     """Creates a visual representation of progress through an audio source"""
-    # TODO: add support for 1+ hour videos
     symbols = ["⚪", "=", "-"]
     progress = time.time() - start  # subtract current time from when bot started playing
-    percentage = progress/duration
+    percentage = progress / duration
     timeline_size = 40
     msg = "**`|"
     print(f"progress: {progress}s, duration:{duration} percent: {percentage * 100}")
@@ -103,7 +102,15 @@ def audio_progress(start: float, duration: float) -> str:
                 msg += symbols[1]
         else:
             msg += symbols[2]
-    return msg + f"|`**\n`{int(progress/60)}:{int(progress % 60):02d} / {int(duration/60)}:{int(duration % 60):02d}`"
+    msg += f"|`**\n`"
+    prog_msg = ""
+    dur_msg = " / "
+    if duration / 3600 >= 1:  # support for 1+ hr sources
+        prog_msg += f"{int(progress // 3600):02d}:"
+        dur_msg += f"{int(duration // 3600):02d}:"
+    prog_msg += f"{int((progress // 60) % 60):02d}:{int(progress % 60):02d}"
+    dur_msg += f"{int((duration // 60) % 60):02d}:{int(duration % 60):02d}`"
+    return msg + prog_msg + dur_msg
 
 
 def make_embed(embed_type: int, music_cog, context: discord.ext.commands.Context) -> discord.Embed:
