@@ -129,7 +129,8 @@ def make_embed(embed_type: int, music_cog, context: discord.ext.commands.Context
             case 0:
                 # queue = show current track and queue
                 embed.add_field(name="**Currently playing: **", value=curr_audio[0]['title'], inline=False)
-                embed.add_field(name="Progress", value=audio_progress(curr_audio[2], curr_audio[0]['duration']))
+                embed.add_field(name="Progress", value=audio_progress(curr_audio[2], curr_audio[0]['duration']),
+                                inline=False)
 
                 if len(aq) > 0:
                     queue_str = ''
@@ -139,7 +140,8 @@ def make_embed(embed_type: int, music_cog, context: discord.ext.commands.Context
             case 1:
                 # np = just show current track
                 embed.add_field(name="**Currently playing: **", value=curr_audio[0]['title'], inline=False)
-                embed.add_field(name="Progress", value=audio_progress(curr_audio[2], curr_audio[0]['duration']))
+                embed.add_field(name="Progress", value=audio_progress(curr_audio[2], curr_audio[0]['duration']),
+                                inline=False)
             case 2:
                 embed.title = f'Vote to Skip - initiated by {context.author.name}'
         return embed

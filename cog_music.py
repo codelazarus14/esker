@@ -24,7 +24,7 @@ class Music(commands.Cog):
                       aliases=[],
                       pass_context=True
                       )
-    async def play(self, context, *, query=None):
+    async def play(self, context: discord.ext.commands.Context, *, query=None):
         if query is None:
             await context.send(f"{utils.emph('play')} requires YouTube link or search query")
             return
@@ -33,12 +33,20 @@ class Music(commands.Cog):
         # check if user in voice
         if user_voice is not None:
             vc = await utils.join_voice_channel(self.bot, context, user_voice)
+            msg_emb = discord.Embed(description='Searching', colour=discord.Colour.dark_green())
+            msg = await context.send(embed=msg_emb)
+            msg_id = msg.id
 
             video, source = utils.search_yt(query)
             if vc.is_playing():
-                # Only want to show when we're visibly adding to queue,
-                # append might be undone by play on first add
-                await context.send(f"Adding audio {utils.emph(video['title'])} to queue")
+                # Only want to update when we're visibly adding to queue,
+                # otherwise
+                msg: discord.Message = await context.channel.fetch_message(msg_id)
+                new_embed = discord.Embed(description=f"Adding audio {utils.emph(video['title'])} to queue")
+            else:
+                new_embed = discord.Embed(description=f"Now playing: {utils.emph(video['title'])}")
+            new_embed.colour = discord.Colour.green()
+            await msg.edit(embed=new_embed)
             print(f"~~~Added audio: id:{video['id']} + title:{video['title']}")
             self.audio_queue.append((video, source))
 
