@@ -112,5 +112,6 @@ def make_embed(embed_type: int, music_cog) -> discord.Embed:
                     embed.add_field(name="**Queue: **", value=queue_str)
             case 1:
                 # np = just show current track
+                # TODO: show progress through track
                 embed.add_field(name="**Currently playing: **", value=curr_audio[0]['title'], inline=False)
         return embed
