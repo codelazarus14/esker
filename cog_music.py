@@ -1,3 +1,5 @@
+import asyncio
+
 import discord
 from discord.ext import commands
 
@@ -21,17 +23,15 @@ class Music(commands.Cog):
     async def play(self, context, *, query):
         user = context.author
         user_voice = user.voice
-        msg = ''
         # check if user in voice
         if user_voice is not None:
             vc = await utils.join_voice_channel(self.bot, context, user_voice)
 
             video, source = utils.search_yt(query)
-            # TODO: write audio source to disk because it's using wayyy too much ram
             if vc.is_playing():
                 # Only want to show when we're visibly adding to queue,
                 # append might be undone by play on first add
-                msg = f"Adding audio `{video['title']}` to queue"
+                await context.send(f"Adding audio `{video['title']}` to queue")
             print(f"~~~Added audio: id:{video['id']} + title:{video['title']}")
             self.audio_queue.append((video, source))
 
@@ -39,8 +39,7 @@ class Music(commands.Cog):
             if not vc.is_playing():
                 await utils.play_next(vc, context, self)
         else:
-            msg = 'User is not in a voice channel'
-        await context.send(msg)
+            await context.send('User is not in a voice channel')
 
         # once audio finishes, bot goes quiet - wait for timeout or disconnect..
 
@@ -54,7 +53,7 @@ class Music(commands.Cog):
             vc: discord.VoiceClient = self.bot.voice_clients[0]
             # don't bother using embed if there's nothing playing
             if vc.is_playing():
-                await context.send(embed=utils.make_embed(0, self))
+                await context.send(embed=utils.make_embed(0, self, context))
                 return
         await context.send('No audio in queue')
 
@@ -69,7 +68,7 @@ class Music(commands.Cog):
             vc: discord.VoiceClient = self.bot.voice_clients[0]
             # don't bother using embed if there's nothing playing
             if vc.is_playing():
-                await context.send(embed=utils.make_embed(1, self))
+                await context.send(embed=utils.make_embed(1, self, context))
                 return
         await context.send('Nothing playing')
 
@@ -78,18 +77,56 @@ class Music(commands.Cog):
                       brief='Skip this trash',
                       aliases=[],
                       pass_context=True)
-    async def skip(self, context):
-        msg = 'Not in voice channel'
-        if len(self.bot.voice_clients) > 0:
-            vc: discord.VoiceClient = self.bot.voice_clients[0]
-            if vc.is_connected() and vc.is_playing():
-                # TODO: if more than 2 users in voice - use vote to confirm skip
-                # use pause = stopping the player = close it
-                msg = 'Skipping current audio'
-                msg += utils.skip_to_next(vc, self)
-            else:
-                msg = 'Nothing to skip'
-        await context.send(msg)
+    async def skip(self, context: discord.ext.commands.Context):
+        if len(self.bot.voice_clients) == 0:
+            return await context.send('Not in voice channel')
+        vc: discord.VoiceClient = self.bot.voice_clients[0]
+        if not vc.is_connected() or not vc.is_playing():
+            return await context.send('Nothing to skip')
+        # threshold - 1-2 people can vote to skip individually, 3+ is a vote
+        # https://stackoverflow.com/questions/69288961/how-to-make-queue-for-songs-and-skip-command-discord-py
+        vote = utils.make_embed(2, self, context)  # create temporary message for vote
+        vote_msg = await context.send(embed=vote)
+        vote_id = vote_msg.id
+
+        await vote_msg.add_reaction(u"\u2705")
+        await vote_msg.add_reaction(u"\U0001F6AB")
+
+        await asyncio.sleep(15)  # 15 seconds to vote
+
+        vote_msg: discord.Message = await context.channel.fetch_message(vote_id)
+        votes = {u"\u2705": 0, u"\U0001F6AB": 0}
+        vote_reacts = [u"\u2705", u"\U0001F6AB"]
+        reacted = []
+        for react in vote_msg.reactions:
+            if react.emoji in vote_reacts:
+                async for user in react.users():
+                    # TODO: fix error caused by users() returning User objects with no .voice attribute
+                    if user.voice.channel.id == vc.channel.id and user.id not in reacted and not user.bot:
+                        votes[react.emoji] += 1
+                        reacted.append(user.id)
+
+        can_skip = False
+        embed_update = discord.Embed()
+
+        if votes[u"\u2705"] > 0:
+            if votes[u"\U0001F6AB"] == 0 \
+                    or votes[u"\u2705"] / (votes[u"\u2705"] + votes[u"\U0001F6AB"]) > 0.5:
+                can_skip = True
+                embed_update = discord.Embed(title='Skip successful',
+                                             description='**Vote succeeded, skipping audio**',
+                                             colour=discord.Colour.green())
+        if not can_skip:
+            embed_update = discord.Embed(title='Skip failure',
+                                         description='**Vote failed, <50% of members voted to skip',
+                                         colour=discord.Colour.red())
+        embed_update.set_footer(text='Voting has ended')
+
+        await vote_msg.clear_reactions()
+        await vote_msg.edit(embed=embed_update)
+
+        if can_skip:
+            await context.send(utils.skip_to_next(vc, self))
 
     @commands.command(name='clear',
                       description='Clears the entire audio queue',

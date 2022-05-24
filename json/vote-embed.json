@@ -1,0 +1,16 @@
+{
+  "description": "Simple majority (>50%) needed to skip",
+  "color": 2899536,
+  "fields": [
+    {
+      "name": "Yes",
+      "value": ":white_check_mark:"
+    }, {
+      "name": "No",
+      "value": ":no_entry_sign:"
+    }
+  ],
+  "footer": {
+    "text": "Voting ends in 15 seconds"
+  }
+}

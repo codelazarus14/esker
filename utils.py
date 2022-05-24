@@ -47,6 +47,7 @@ async def play_next(vc: discord.VoiceClient, context, music_cog):
 
 
 def skip_to_next(vc: discord.VoiceClient, music_cog):
+    # use pause = stopping the player = close it
     vc.pause()
     msg = ''
     # still another audio source in the queue? swap it in
@@ -82,7 +83,7 @@ def chat_styler(msg=str):
     return f'`{msg}`'
 
 
-def make_embed(embed_type: int, music_cog) -> discord.Embed:
+def make_embed(embed_type: int, music_cog, context: discord.ext.commands.Context) -> discord.Embed:
     curr_audio = music_cog.curr_audio
     aq = music_cog.audio_queue
     """Creates an embed for putting in chat given a format type
@@ -90,7 +91,8 @@ def make_embed(embed_type: int, music_cog) -> discord.Embed:
     """
     type_to_file = {
         0: 'queue-embed',
-        1: 'queue-embed'
+        1: 'queue-embed',
+        2: 'vote-embed'
     }
     if embed_type not in type_to_file:
         raise BadEmbedTypeError
@@ -114,4 +116,6 @@ def make_embed(embed_type: int, music_cog) -> discord.Embed:
                 # np = just show current track
                 # TODO: show progress through track
                 embed.add_field(name="**Currently playing: **", value=curr_audio[0]['title'], inline=False)
+            case 2:
+                embed.title = f'Vote to Skip - initiated by {context.author.name}'
         return embed
