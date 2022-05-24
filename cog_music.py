@@ -27,6 +27,7 @@ class Music(commands.Cog):
             vc = await utils.join_voice_channel(self.bot, context, user_voice)
 
             video, source = utils.search_yt(query)
+            # TODO: write audio source to disk because it's using wayyy too much ram
             if vc.is_playing():
                 # Only want to show when we're visibly adding to queue,
                 # append might be undone by play on first add

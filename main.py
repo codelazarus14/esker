@@ -14,6 +14,7 @@ BOT_PREFIX = ['/', 'rr.', 'rr ']  # prefixes for bot slash commands
 
 # TODO:
 #  override default help, add embed support for play() and np() based on rythm's look
+#  add playskip() to merge function of play and skip
 #  https://discordpy.readthedocs.io/en/stable/ext/commands/api.html?highlight=command#helpcommand
 #  let user know if bad command given/missing arguments?
 #  maybe localize message strings somewhere so i can refer to them (like a strings.xml?)
