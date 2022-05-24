@@ -82,6 +82,7 @@ class Music(commands.Cog):
         if len(self.bot.voice_clients) > 0:
             vc: discord.VoiceClient = self.bot.voice_clients[0]
             if vc.is_connected() and vc.is_playing():
+                # TODO: if more than 2 users in voice - use vote to confirm skip
                 # use pause = stopping the player = close it
                 msg = 'Skipping current audio'
                 msg += utils.skip_to_next(vc, self)
