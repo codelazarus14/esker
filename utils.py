@@ -162,7 +162,7 @@ def make_embed(embed_type: int, music_cog, context: discord.ext.commands.Context
 
                     queue_str = ''
                     for i in range(len(aq)):
-                        dur = curr_audio[0]['duration']
+                        dur = aq[i][0]['duration']
                         # borrowed from audio_progress_timestamp()
                         dur_str = ""
                         if dur > 3600:
@@ -170,7 +170,7 @@ def make_embed(embed_type: int, music_cog, context: discord.ext.commands.Context
                         dur_str += f"{int((dur // 60) % 60):02d}:{int(dur % 60):02d}"
                         queue_str += f"`{i + 1}.` [{(aq[i][0]['title'])}]" \
                                      f"(https://youtube.com/watch?v={aq[i][0]['id']}) `| {dur_str}`\n" \
-                                     f"Requested by *{context.author}*"
+                                     f"Requested by *{context.author}*\n"
                     embed.add_field(name="Queue:", value=queue_str)
             case 1:
                 # np = just show current track
