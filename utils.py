@@ -58,7 +58,7 @@ def skip_to_next(vc: discord.VoiceClient, music_cog):
         music_cog.curr_audio += (time.time(),)
         vc.source = discord.FFmpegPCMAudio(music_cog.curr_audio[1], **ffmpeg_opts)
         vc.resume()
-        msg = f"{music_cog.curr_audio[0]['title']}"
+        msg = f"[{music_cog.curr_audio[0]['title']}](https://youtube.com/watch?v={music_cog.curr_audio[0]['id']})"
     else:
         vc.stop()
     return msg
@@ -91,7 +91,7 @@ def audio_progress(start: float, duration: float) -> str:
     progress = time.time() - start  # subtract current time from when bot started playing
     percentage = progress / duration
     timeline_size = 40
-    msg = "**`|"
+    msg = "**`"
     print(f"progress: {progress}s, duration:{duration} percent: {percentage * 100}")
     for i in range(timeline_size):
         scaled_percentage = timeline_size * percentage
@@ -102,15 +102,21 @@ def audio_progress(start: float, duration: float) -> str:
                 msg += symbols[1]
         else:
             msg += symbols[2]
-    msg += f"|`**\n`"
-    prog_msg = ""
+    msg += f"`**"
+    return msg
+
+
+def audio_progress_timestamp(start: float, duration: float):
+    """Formats the timestamp for video progress/duration"""
+    progress = time.time() - start  # subtract current time from when bot started playing
+    prog_msg = "`"
     dur_msg = " / "
     if duration / 3600 >= 1:  # support for 1+ hr sources
         prog_msg += f"{int(progress // 3600):02d}:"
         dur_msg += f"{int(duration // 3600):02d}:"
     prog_msg += f"{int((progress // 60) % 60):02d}:{int(progress % 60):02d}"
     dur_msg += f"{int((duration // 60) % 60):02d}:{int(duration % 60):02d}`"
-    return msg + prog_msg + dur_msg
+    return prog_msg + dur_msg
 
 
 def make_embed(embed_type: int, music_cog, context: discord.ext.commands.Context) -> discord.Embed:
@@ -140,20 +146,43 @@ def make_embed(embed_type: int, music_cog, context: discord.ext.commands.Context
         match embed_type:
             case 0:
                 # queue = show current track and queue
-                embed.add_field(name="**Currently playing: **", value=curr_audio[0]['title'], inline=False)
-                embed.add_field(name="Progress", value=audio_progress(curr_audio[2], curr_audio[0]['duration']),
-                                inline=False)
+                embed.set_author(name="Currently playing ♪", icon_url=context.voice_client.user.avatar_url)
+                embed.description = f"[{curr_audio[0]['title']}](https://youtube.com/watch?v={curr_audio[0]['id']})"
+                thumb_url = curr_audio[0]['thumbnails'][2]['url']
+                # ['thumbnails'][0-4] is size from 0 to full res, access url attribute
+                embed.set_thumbnail(url=thumb_url)
+                embed.add_field(name="_ _",
+                                value=audio_progress(curr_audio[2], curr_audio[0]['duration']), inline=False)
+                embed.add_field(name="_ _",
+                                value=audio_progress_timestamp(curr_audio[2], curr_audio[0]['duration']), inline=False)
 
                 if len(aq) > 0:
+                    # padding between progress and queue
+                    embed.add_field(name="_ _", value="_ _", inline=False)
+
                     queue_str = ''
                     for i in range(len(aq)):
-                        queue_str += f"`{i + 1}.` {(aq[i][0]['title'])}\n"
-                    embed.add_field(name="**Queue: **", value=queue_str)
+                        dur = curr_audio[0]['duration']
+                        # borrowed from audio_progress_timestamp()
+                        dur_str = ""
+                        if dur > 3600:
+                            dur_str += f"{int(dur // 3600):02d}:"
+                        dur_str += f"{int((dur // 60) % 60):02d}:{int(dur % 60):02d}"
+                        queue_str += f"`{i + 1}.` [{(aq[i][0]['title'])}]" \
+                                     f"(https://youtube.com/watch?v={aq[i][0]['id']}) `| {dur_str}`\n" \
+                                     f"Requested by *{context.author}*"
+                    embed.add_field(name="Queue:", value=queue_str)
             case 1:
                 # np = just show current track
-                embed.add_field(name="**Currently playing: **", value=curr_audio[0]['title'], inline=False)
-                embed.add_field(name="Progress", value=audio_progress(curr_audio[2], curr_audio[0]['duration']),
-                                inline=False)
+                embed.set_author(name="Currently playing ♪", icon_url=context.voice_client.user.avatar_url)
+                embed.description = f"[{curr_audio[0]['title']}](https://youtube.com/watch?v={curr_audio[0]['id']})"
+                # ['thumbnails'][0-4] is size from 0 to full res, access url attribute
+                thumb_url = curr_audio[0]['thumbnails'][2]['url']
+                embed.set_thumbnail(url=thumb_url)
+                embed.add_field(name="_ _",
+                                value=audio_progress(curr_audio[2], curr_audio[0]['duration']), inline=False)
+                embed.add_field(name="_ _",
+                                value=audio_progress_timestamp(curr_audio[2], curr_audio[0]['duration']), inline=False)
             case 2 | 3 | 4:
                 # Vote, searching, query success should indicate author
                 embed.set_author(name=context.author.name, icon_url=context.author.avatar_url)

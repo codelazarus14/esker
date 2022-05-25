@@ -28,7 +28,7 @@ class Music(commands.Cog):
                       )
     async def play(self, context: discord.ext.commands.Context, *, query=None):
         if query is None:
-            return await context.send(f"{utils.emph('play')} requires YouTube link or search query")
+            return await context.send(f"*{utils.emph('play')}* requires YouTube link or search query")
 
         user = context.author
         user_voice = user.voice
@@ -48,13 +48,19 @@ class Music(commands.Cog):
             if vc.is_playing():
                 # only want to show queue "updating" when we're not about to play the new source
                 msg: discord.Message = await context.channel.fetch_message(msg_id)
-                new_embed.description = f"Added audio {utils.emph(video['title'])} to queue"
+                new_embed.description = f"Added audio [{video['title']}]" \
+                                        f"(https://youtube.com/watch?v={video['id']}) to queue"
             else:
-                new_embed.description = f"Now playing: {utils.emph(video['title'])}"
+                new_embed.description = f"Now playing: [{video['title']}]" \
+                                        f"(https://youtube.com/watch?v={video['id']})"
+            # should probably set this in utils.make_embed()..
+            thumb_url = video['thumbnails'][1]['url']
+            new_embed.set_thumbnail(url=thumb_url)
             # clear temp message and update user with result
             await msg.delete()
             await context.send(embed=new_embed)
-            print(f"~~~Added audio: id:{video['id']} + title:{video['title']}")
+            print(f"~~~Added audio: id:{video['id']}, title:{video['title']}, "
+                  f"url=https://youtube.com/watch?v={video['id']}")
             self.audio_queue.append((video, source))
 
             # keep playing audio until queue exhausted
@@ -85,12 +91,17 @@ class Music(commands.Cog):
             new_embed = utils.make_embed(4, self, context)
             if vc.is_playing():
                 msg: discord.Message = await context.channel.fetch_message(msg_id)
-                new_embed.description = f"Added audio {utils.emph(video['title'])} to front of queue"
+                new_embed.description = f"Added audio [{video['title']}]" \
+                                        f"(https://youtube.com/watch?v={video['id']}) to front of queue"
             else:
-                new_embed.description = f"Now playing: {utils.emph(video['title'])}"
+                new_embed.description = f"Now playing: [{video['title']}]" \
+                                        f"(https://youtube.com/watch?v={video['id']})"
+            thumb_url = video['thumbnails'][1]['url']
+            new_embed.set_thumbnail(url=thumb_url)
             await msg.delete()
             await context.send(embed=new_embed)
-            print(f"~~~Added audio: id:{video['id']} + title:{video['title']}")
+            print(f"~~~Added audio: id:{video['id']}, title:{video['title']}, "
+                  f"url=https://youtube.com/watch?v={video['id']}")
             # only major difference from play = add to front of queue
             self.audio_queue.insert(0, (video, source))
 

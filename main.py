@@ -16,7 +16,7 @@ BOT_PREFIX = ['/', 'rr.', 'rr ']  # prefixes for bot slash commands
 #  override default help
 #  https://discordpy.readthedocs.io/en/stable/ext/commands/api.html?highlight=command#helpcommand
 #  maybe localize message strings somewhere so i can refer to them (like a strings.xml?)
-#  on idle in voice/shutdown, bot leaves voice channels
+#  on idle in voice/shutdown, bot leaves voice channels (discord might do this automatically..?)
 #  remove prints or replace w logging
 
 client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX)
