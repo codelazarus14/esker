@@ -26,8 +26,8 @@ class Music(commands.Cog):
                       )
     async def play(self, context: discord.ext.commands.Context, *, query=None):
         if query is None:
-            await context.send(f"{utils.emph('play')} requires YouTube link or search query")
-            return
+            return await context.send(f"{utils.emph('play')} requires YouTube link or search query")
+
         user = context.author
         user_voice = user.voice
         # check if user in voice
@@ -39,8 +39,8 @@ class Music(commands.Cog):
 
             video, source = utils.search_yt(query)
             if vc.is_playing():
-                # Only want to update when we're visibly adding to queue,
-                # otherwise
+                # Only want to show append "happening" when already playing, otherwise
+                # indicate first pop after append as "now playing"
                 msg: discord.Message = await context.channel.fetch_message(msg_id)
                 new_embed = discord.Embed(description=f"Added audio {utils.emph(video['title'])} to queue")
             else:
@@ -57,6 +57,40 @@ class Music(commands.Cog):
             await context.send('User is not in a voice channel')
 
         # once audio finishes, bot goes quiet - wait for timeout or disconnect..
+
+    @commands.command(name='play_next',
+                      description='If playing, the given audio plays. Otherwise it is added to the front of the queue',
+                      brief='Add audio to the front of the queue',
+                      aliases=['playnext'],
+                      pass_context=True)
+    async def play_next(self, context: discord.ext.commands.Context, *, query=None):
+        # if queue is empty - play normally
+        if context.voice_client is None or not context.voice_client.is_playing():
+            return await self.play(context=context, query=query)
+        user_voice = context.author.voice
+        if user_voice is not None:
+            vc = await utils.join_voice_channel(self.bot, context, user_voice)
+            msg_emb = discord.Embed(description='Searching', colour=discord.Colour.dark_green())
+            msg = await context.send(embed=msg_emb)
+            msg_id = msg.id
+
+            video, source = utils.search_yt(query)
+            if vc.is_playing():
+                msg: discord.Message = await context.channel.fetch_message(msg_id)
+                new_embed = discord.Embed(description=f"Added audio {utils.emph(video['title'])} to front of queue")
+            else:
+                new_embed = discord.Embed(description=f"Now playing: {utils.emph(video['title'])}")
+            new_embed.colour = discord.Colour.green()
+            await msg.edit(embed=new_embed)
+            print(f"~~~Added audio: id:{video['id']} + title:{video['title']}")
+            # only major difference from play = add to front of queue
+            self.audio_queue.insert(0, (video, source))
+
+            # keep playing audio until queue exhausted
+            if not vc.is_playing():
+                utils.play_next(vc, context, self)
+        else:
+            await context.send('User is not in a voice channel')
 
     @commands.command(name='queue',
                       description='View the pending audio queue',

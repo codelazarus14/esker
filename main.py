@@ -14,7 +14,6 @@ BOT_PREFIX = ['/', 'rr.', 'rr ']  # prefixes for bot slash commands
 
 # TODO:
 #  override default help
-#  add playskip() to merge function of play and skip
 #  get voice client from context instead of looking at voice_clients
 #  https://discordpy.readthedocs.io/en/stable/ext/commands/api.html?highlight=command#helpcommand
 #  maybe localize message strings somewhere so i can refer to them (like a strings.xml?)
