@@ -1,4 +1,5 @@
 {
+  "title": "Vote to Skip",
   "description": "Simple majority (>50%) needed to skip",
   "color": 1752220,
   "fields": [
@@ -6,7 +7,8 @@
       "name": "Yes",
       "value": ":white_check_mark:",
       "inline": true
-    }, {
+    },
+    {
       "name": "No",
       "value": ":no_entry_sign:",
       "inline": true

@@ -14,10 +14,9 @@ BOT_PREFIX = ['/', 'rr.', 'rr ']  # prefixes for bot slash commands
 
 # TODO:
 #  override default help
-#  get voice client from context instead of looking at voice_clients
 #  https://discordpy.readthedocs.io/en/stable/ext/commands/api.html?highlight=command#helpcommand
 #  maybe localize message strings somewhere so i can refer to them (like a strings.xml?)
-#  on idle/shutdown, bot leaves voice channels
+#  on idle in voice/shutdown, bot leaves voice channels
 #  remove prints or replace w logging
 
 client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX)
@@ -46,6 +45,7 @@ async def list_servers():
         for server in client.guilds:
             print(server.name)
         await asyncio.sleep(600)
+
 
 client.loop.create_task(list_servers())
 client.run(TOKEN)

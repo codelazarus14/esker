@@ -18,14 +18,14 @@ ffmpeg_opts: dict[str, str] = {'before_options': '-reconnect 1 -reconnect_stream
                                'options': '-vn'}  # required to keep bot connected against YouTube's wishes
 
 
-async def join_voice_channel(client, context, user_voice):
+async def join_voice_channel(context: discord.ext.commands.Context, user_voice):
     # get user VoiceChannel
     channel: discord.VoiceChannel = user_voice.channel
     # TODO: doesn't account for old bot instance left in voice - unreliable unless we force it
     #  to disconnect from everything when being shut down - override client.run()
-    if len(client.voice_clients) > 0:
+    voice_client = context.voice_client
+    if voice_client is not None:
         # if client already exists
-        voice_client = client.voice_clients[0]
         if voice_client.is_connected() and voice_client.channel is not channel:
             await context.send(f'Moving to channel {emph("#" + channel.name)}')
     else:
@@ -114,15 +114,20 @@ def audio_progress(start: float, duration: float) -> str:
 
 
 def make_embed(embed_type: int, music_cog, context: discord.ext.commands.Context) -> discord.Embed:
+    """Creates an embed for putting in chat given a format indicator
+    that should match the context from which make_embed() is called
+
+    | See type_to_file in this method but really this is just my own utility method"""
     curr_audio = music_cog.curr_audio
     aq = music_cog.audio_queue
-    """Creates an embed for putting in chat given a format type
-    that should match context from which make_embed() is called
-    """
     type_to_file = {
         0: 'queue-embed',
         1: 'queue-embed',
-        2: 'vote-embed'
+        2: 'vote-embed',
+        3: 'searching-embed',
+        4: 'query-success-embed',
+        5: 'skip-success-embed',
+        6: 'skip-fail-embed'
     }
     if embed_type not in type_to_file:
         raise BadEmbedTypeError
@@ -131,7 +136,7 @@ def make_embed(embed_type: int, music_cog, context: discord.ext.commands.Context
         embed_dict = json.load(embed_json)
         # convert dict to embed
         embed = discord.Embed.from_dict(embed_dict)
-        # update template with data based on conditions
+        # update each template with data from context
         match embed_type:
             case 0:
                 # queue = show current track and queue
@@ -149,6 +154,7 @@ def make_embed(embed_type: int, music_cog, context: discord.ext.commands.Context
                 embed.add_field(name="**Currently playing: **", value=curr_audio[0]['title'], inline=False)
                 embed.add_field(name="Progress", value=audio_progress(curr_audio[2], curr_audio[0]['duration']),
                                 inline=False)
-            case 2:
-                embed.title = f'Vote to Skip - initiated by {context.author.name}'
+            case 2 | 3 | 4:
+                # Vote, searching, query success should indicate author
+                embed.set_author(name=context.author.name, icon_url=context.author.avatar_url)
         return embed
