@@ -21,8 +21,6 @@ logger.addHandler(handler)
 
 # TODO:
 #  maybe localize message strings somewhere so i can refer to them (like a strings.xml?)
-#  on idle in voice/shutdown, bot leaves voice channels
-#  https://stackoverflow.com/questions/63658589/how-to-make-a-discord-bot-leave-the-voice-channel-after-being-inactive-for-x-min
 
 client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX, help_command=None)
 # load commands by category
@@ -54,5 +52,3 @@ async def list_servers():
 
 client.loop.create_task(list_servers())
 client.run(TOKEN)
-# see https://discordpy.readthedocs.io/en/stable/ext/commands/api.html?highlight=bot#discord.ext.commands.Bot.run
-# on how to override run() and clean up tasks (disconnect from voice?)

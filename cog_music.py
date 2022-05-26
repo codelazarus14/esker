@@ -256,3 +256,26 @@ class Music(commands.Cog):
             msg = f'Disconnected from {utils.emph("#" + curr_channel.name)}'
             await context.voice_client.disconnect()
         await context.send(msg)
+
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        """Shamelessly ripped from https://stackoverflow.com/questions/63658589/how-to-make-a-discord-bot-leave-the
+        -voice-channel-after-being-inactive-for-x-min """
+        timeout = 600
+
+        if not member.id == self.bot.user.id:
+            return
+
+        elif before.channel is None:
+            voice = after.channel.guild.voice_client
+            time = 0
+            while True:
+                await asyncio.sleep(1)
+                time = time + 1
+                if voice.is_playing() and not voice.is_paused():
+                    time = 0
+                if time == timeout:
+                    logger.log(logging.INFO, f"== Idle in voice for {timeout} seconds, disconnecting..")
+                    await voice.disconnect()
+                if not voice.is_connected():
+                    break
