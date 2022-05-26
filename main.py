@@ -15,7 +15,7 @@ BOT_PREFIX = ['!', 'rr.', 'rr ']  # prefixes for bot slash commands
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler(filename='discord-bot.log', encoding='utf-8', mode='w')
+handler = logging.FileHandler(filename='log/rythm-bot.log', encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 

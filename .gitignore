@@ -1,6 +1,5 @@
 /.idea/
-/ost/
+/log/
 .env
-/Outer Wilds - Original Soundtrack/
+/ost/
 /run-bot.bat
-/discord-bot.log
