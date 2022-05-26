@@ -1,3 +1,4 @@
+import logging
 import math
 import time
 
@@ -8,6 +9,8 @@ import json
 import discord
 import discord.ext.commands
 from youtube_dl import YoutubeDL
+
+logger = logging.getLogger('discord')
 
 
 class BadEmbedTypeError(ValueError):
@@ -38,7 +41,7 @@ async def join_voice_channel(context: discord.ext.commands.Context, user_voice):
 
 def play_next(vc: discord.VoiceClient, context, music_cog):
     if len(music_cog.audio_queue) == 0:
-        print('Reached end of audio queue')
+        logger.log(logging.INFO, '|| Reached end of audio queue')
         return
     else:
         music_cog.curr_audio = music_cog.audio_queue.pop(0)
@@ -92,7 +95,7 @@ def audio_progress(start: float, duration: float) -> str:
     percentage = progress / duration
     timeline_size = 40
     msg = "**`"
-    print(f"progress: {progress}s, duration:{duration} percent: {percentage * 100}")
+    logger.log(logging.INFO, f"now_playing: ** progress: {progress}s, duration:{duration} percent: {percentage * 100}")
     for i in range(timeline_size):
         scaled_percentage = timeline_size * percentage
         if i < scaled_percentage:

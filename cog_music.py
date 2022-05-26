@@ -1,9 +1,12 @@
 import asyncio
+import logging
 
 import discord
 from discord.ext import commands
 
 import utils
+
+logger = logging.getLogger('discord')
 
 
 class Music(commands.Cog):
@@ -59,8 +62,8 @@ class Music(commands.Cog):
             # clear temp message and update user with result
             await msg.delete()
             await context.send(embed=new_embed)
-            print(f"~~~Added audio: id:{video['id']}, title:{video['title']}, "
-                  f"url=https://youtube.com/watch?v={video['id']}")
+            logger.log(logging.INFO, f"play: ~~~Added audio: id:{video['id']}, title:{video['title']}, "
+                                     f"url=https://youtube.com/watch?v={video['id']}")
             self.audio_queue.append((video, source))
 
             # keep playing audio until queue exhausted
@@ -100,8 +103,8 @@ class Music(commands.Cog):
             new_embed.set_thumbnail(url=thumb_url)
             await msg.delete()
             await context.send(embed=new_embed)
-            print(f"~~~Added audio: id:{video['id']}, title:{video['title']}, "
-                  f"url=https://youtube.com/watch?v={video['id']}")
+            logger.log(logging.INFO, "play_next: ~~~Added audio: id:{video['id']}, title:{video['title']}, "
+                                     f"url=https://youtube.com/watch?v={video['id']}")
             # only major difference from play = add to front of queue
             self.audio_queue.insert(0, (video, source))
 
@@ -188,7 +191,7 @@ class Music(commands.Cog):
                         reacted.append(user.id)
 
         can_skip = False
-        print(f'Vote {vote_id} results: {votes}')
+        logger.log(logging.INFO, f'skip: >>>Vote {vote_id} results: {votes}')
         embed_update = discord.Embed()
 
         # check voting results

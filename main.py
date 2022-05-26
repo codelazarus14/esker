@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 import discord.ext.commands
 import os
@@ -12,11 +13,16 @@ load_dotenv()
 TOKEN = os.getenv('RYTHM_BOT_SECRET')  # secret token for bot to run
 BOT_PREFIX = ['!', 'rr.', 'rr ']  # prefixes for bot slash commands
 
+logger = logging.getLogger('discord')
+logger.setLevel(logging.INFO)
+handler = logging.FileHandler(filename='discord-bot.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
+
 # TODO:
 #  maybe localize message strings somewhere so i can refer to them (like a strings.xml?)
 #  on idle in voice/shutdown, bot leaves voice channels
 #  https://stackoverflow.com/questions/63658589/how-to-make-a-discord-bot-leave-the-voice-channel-after-being-inactive-for-x-min
-#  remove prints or replace w logging
 
 client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX, help_command=None)
 # load commands by category
