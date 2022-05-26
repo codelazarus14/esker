@@ -1,4 +1,5 @@
 /.idea/
+/log/
+/ost/
 .env
-/Outer Wilds - Original Soundtrack/
-/Ugly God FTBT.mp3
+/run-bot.bat
