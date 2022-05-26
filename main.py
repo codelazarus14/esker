@@ -10,17 +10,15 @@ import cog_music
 load_dotenv()
 
 TOKEN = os.getenv('RYTHM_BOT_SECRET')  # secret token for bot to run
-BOT_PREFIX = ['/', 'rr.', 'rr ']  # prefixes for bot slash commands
+BOT_PREFIX = ['!', 'rr.', 'rr ']  # prefixes for bot slash commands
 
 # TODO:
-#  override default help
-#  https://discordpy.readthedocs.io/en/stable/ext/commands/api.html?highlight=command#helpcommand
 #  maybe localize message strings somewhere so i can refer to them (like a strings.xml?)
 #  on idle in voice/shutdown, bot leaves voice channels
 #  https://stackoverflow.com/questions/63658589/how-to-make-a-discord-bot-leave-the-voice-channel-after-being-inactive-for-x-min
 #  remove prints or replace w logging
 
-client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX)
+client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX, help_command=None)
 # load commands by category
 client.add_cog(cog_music.Music(client))
 client.add_cog(cog_general.General(client))

@@ -19,9 +19,9 @@ class Music(commands.Cog):
         | audio[2] = play() starting timestamp"""
 
     @commands.command(name='play',
-                      description='Wanna listen to some tunes?\n Given a link or search query, '
+                      description='*Wanna listen to some tunes?*\n Given a link or search query, '
                                   'the bot will find an audio source on YouTube to be played immediately '
-                                  'or added to the end of the audio queue',
+                                  'or added to the end of the audio queue.',
                       brief='Do you hear music?',
                       aliases=[],
                       pass_context=True
@@ -70,7 +70,7 @@ class Music(commands.Cog):
             await context.send('User is not in a voice channel')
 
     @commands.command(name='play_next',
-                      description='Same as play but adds to the front of the audio queue',
+                      description='Same as play but adds to the front of the audio queue.',
                       brief='Quit cuttin\' in line!',
                       aliases=['playnext'],
                       pass_context=True)
@@ -111,7 +111,7 @@ class Music(commands.Cog):
             await context.send('User is not in a voice channel')
 
     @commands.command(name='queue',
-                      description='View the audio queue in order of most-soon-to-be-played',
+                      description='View the audio queue in order of most-soon-to-be-played.',
                       brief='View the audio queue',
                       aliases=['q'],
                       pass_context=True)
@@ -124,7 +124,7 @@ class Music(commands.Cog):
         await context.send('No audio in queue')
 
     @commands.command(name='np',
-                      description='See what audio is currently being played, if any',
+                      description='See what audio is currently being played, if any.',
                       brief='See the current audio source',
                       aliases=['now_playing'],
                       pass_context=True
@@ -138,8 +138,8 @@ class Music(commands.Cog):
         await context.send('Nothing playing')
 
     @commands.command(name='skip',
-                      description='Skip the current audio being played and serves up the next audio source in the queue'
-                                  '\nWith more than two other users in voice, this command initiates a vote to skip',
+                      description='Skip the current audio being played and serves up the next one in line.'
+                                  '\nWith more than two other users in voice, this command initiates a vote to skip.',
                       brief='Skip this trash',
                       aliases=[],
                       pass_context=True)
@@ -210,7 +210,7 @@ class Music(commands.Cog):
         await vote_msg.edit(embed=embed_update)
 
     @commands.command(name='clear',
-                      description='Clears the entire audio queue but leaves the bot\'s current audio source untouched',
+                      description='Clears the entire audio queue except for the bot\'s current audio source, if any.',
                       brief='Clear the audio queue',
                       aliases=['clear_queue'],
                       pass_context=True
@@ -223,8 +223,8 @@ class Music(commands.Cog):
         await context.send(msg)
 
     @commands.command(name='join',
-                      description='Moves the bot into the user\'s current voice channel'
-                                  '\nIf already in the same channel, nothing happens',
+                      description='Moves the bot into the user\'s current voice channel.'
+                                  '\nIf already in the same channel, this does nothing.',
                       brief='Make the bot join your voice channel',
                       aliases=['move'],
                       pass_context=True
@@ -237,7 +237,7 @@ class Music(commands.Cog):
             await context.send('User is not in a voice channel')
 
     @commands.command(name='disconnect',
-                      description='Makes the bot disconnect from any voice channel they\'re in',
+                      description='Makes the bot disconnect from any voice channel they\'re in.',
                       brief='Kick the bot outta voice',
                       aliases=['d'],
                       pass_context=True
