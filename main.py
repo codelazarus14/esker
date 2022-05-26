@@ -1,5 +1,6 @@
 # Esker's heart and soul
 import asyncio
+import logging
 
 import discord.ext.commands
 import os
@@ -12,6 +13,12 @@ load_dotenv()
 
 TOKEN = os.getenv('ESKER_BOT_SECRET')  # secret token for bot to run
 BOT_PREFIX = ['e.']  # prefixes for bot slash commands
+
+logger = logging.getLogger('discord')
+logger.setLevel(logging.INFO)
+handler = logging.FileHandler(filename='log/esker-bot.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
 
 # TODO: make Cogs + files for different slash command types: https://docs.pycord.dev/en/master/ext/commands/cogs.html
 #   add e.define = search outer wilds fan wiki for title of article + respond w intro paragraph
