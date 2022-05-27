@@ -3,15 +3,46 @@ from discord.ext import commands
 import utils
 
 
+class MyHelpCommand(commands.DefaultHelpCommand):
+    """Overriding default help message as an embed"""
+    async def send_bot_help(self, mapping):
+        destination = self.get_destination()
+        help_emb = utils.make_embed(6, self.cog, self.context)
+        help_emb.description = f"\n\nType `{self.clean_prefix}help command` for more info on a command.\n You " \
+                               f"can also type `{self.clean_prefix}help category` for more info on a category."
+        await destination.send(embed=help_emb)
+
+    async def send_cog_help(self, cog):
+        destination = self.get_destination()
+        help_emb = utils.make_embed(7, cog, self.context)
+        help_emb.set_author(name=f"Showing help for category: {cog.qualified_name}",
+                            icon_url=self.context.bot.user.avatar_url)
+        help_emb.description = f"\n\nType `{self.clean_prefix}help command` for more info on a command."
+        await destination.send(embed=help_emb)
+
+    async def send_command_help(self, command):
+        destination = self.get_destination()
+        help_emb = utils.make_embed(8, self.cog, self.context)
+        help_emb.set_author(name=f"Showing help for command: {command.name}",
+                            icon_url=self.context.bot.user.avatar_url)
+        # help's description is blank after override
+        if command.name == 'help':
+            desc = 'Shows this message'
+        else:
+            desc = command.description
+        help_emb.description = f"`{self.get_command_signature(command)}`\n\n{desc}"
+        await destination.send(embed=help_emb)
+
+
 class General(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
         self.star_chart = {"loop": 0, "stars": "Nobody here but us chickens"}
         """dict of current visible stars in the sky that updates over the course of a loop"""
         # TODO: implement help command like before
-        # self._original_help_command = bot.help_command
-        # bot.help_command = MyHelpCommand()
-        # bot.help_command.cog = self
+        self._original_help_command = bot.help_command
+        bot.help_command = MyHelpCommand()
+        bot.help_command.cog = self
 
     @commands.command(name='hello',
                       description='Say hi to an old friend.',
