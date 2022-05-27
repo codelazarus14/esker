@@ -25,6 +25,7 @@ class MyHelpCommand(commands.DefaultHelpCommand):
         help_emb = utils.make_embed(8, self.cog, self.context)
         help_emb.set_author(name=f"Showing help for command: {command.name}",
                             icon_url=self.context.bot.user.avatar_url)
+        # TODO: fix help command description
         # help's description is blank after override
         if command.name == 'help':
             desc = 'Shows this message'

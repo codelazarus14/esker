@@ -103,9 +103,18 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
                 if len(cmds) > 0:
                     for i in range(len(cmds) - 1):
                         cmd_names += f"*{cmds[i]}*\n"
-                        cmd_briefs += f"{cmds[i].brief}\n"
+                        # TODO: fix help command description
+                        # help's description is blank after overwrite
+                        if cmds[i].qualified_name == 'help':
+                            cmd_briefs += 'Shows this message'
+                        else:
+                            cmd_briefs += f"{cmds[i].brief}\n"
                     cmd_names += f"*{cmds[len(cmds) - 1]}*"
-                    cmd_briefs += f"{cmds[len(cmds) - 1].brief}"
+                    # help's description is blank after overwrite
+                    if cmds[len(cmds) - 1].qualified_name == 'help':
+                        cmd_briefs += 'Shows this message'
+                    else:
+                        cmd_briefs += f"{cmds[len(cmds) - 1].brief}\n"
                 # name is already displayed above, just show commands
                 embed.add_field(name="Commands:", value=cmd_names)
                 # separate column (inline field) for briefs
