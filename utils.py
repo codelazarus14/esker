@@ -149,7 +149,6 @@ def make_embed(embed_type: int, music_cog, context: discord.ext.commands.Context
         match embed_type:
             case 0:
                 # queue = show current track and queue
-                embed.set_author(name="Currently playing ♪", icon_url=context.voice_client.user.avatar_url)
                 embed.description = f"[{curr_audio[0]['title']}](https://youtube.com/watch?v={curr_audio[0]['id']})"
                 thumb_url = curr_audio[0]['thumbnails'][2]['url']
                 # ['thumbnails'][0-4] is size from 0 to full res, access url attribute
@@ -177,7 +176,6 @@ def make_embed(embed_type: int, music_cog, context: discord.ext.commands.Context
                     embed.add_field(name="Queue:", value=queue_str)
             case 1:
                 # np = just show current track
-                embed.set_author(name="Currently playing ♪", icon_url=context.voice_client.user.avatar_url)
                 embed.description = f"[{curr_audio[0]['title']}](https://youtube.com/watch?v={curr_audio[0]['id']})"
                 # ['thumbnails'][0-4] is size from 0 to full res, access url attribute
                 thumb_url = curr_audio[0]['thumbnails'][2]['url']
