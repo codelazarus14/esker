@@ -43,9 +43,18 @@ class MyHelpCommand(commands.DefaultHelpCommand):
             if len(cmds) > 0:
                 for i in range(len(cmds) - 1):
                     cmd_names += f"*{cmds[i]}*\n"
-                    cmd_briefs += f"{cmds[i].brief}\n"
+                    # TODO: fix help command description
+                    # help's description is blank after overwrite
+                    if cmds[i].qualified_name == 'help':
+                        cmd_briefs += 'Shows this message'
+                    else:
+                        cmd_briefs += f"{cmds[i].brief}\n"
                 cmd_names += f"*{cmds[len(cmds) - 1]}*"
-                cmd_briefs += f"{cmds[len(cmds) - 1].brief}"
+                # help's description is blank after overwrite
+                if cmds[len(cmds) - 1].qualified_name == 'help':
+                    cmd_briefs += 'Shows this message'
+                else:
+                    cmd_briefs += f"{cmds[len(cmds) - 1].brief}\n"
             # name is already displayed above, just show commands
             help_emb.add_field(name="Commands:", value=cmd_names)
             # separate column (inline field) for briefs
@@ -60,6 +69,7 @@ class MyHelpCommand(commands.DefaultHelpCommand):
             help_emb = discord.Embed().from_dict(embed_dict)
             help_emb.set_author(name=f"Showing help for command: {command.name}",
                                 icon_url=self.context.bot.user.avatar_url)
+            # TODO: fix help command description
             # help's description is blank after override
             if command.name == 'help':
                 desc = 'Shows this message'
