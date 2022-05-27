@@ -6,6 +6,8 @@ import utils
 class General(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
+        self.star_chart = {"loop": 0, "stars": "Nobody here but us chickens"}
+        """dict of current visible stars in the sky that updates over the course of a loop"""
         # TODO: implement help command like before
         # self._original_help_command = bot.help_command
         # bot.help_command = MyHelpCommand()
@@ -64,3 +66,36 @@ class General(commands.Cog):
                       )
     async def rock_assn(self, context):
         await context.send(embed=utils.make_embed(4, self, context))
+
+    @commands.command(name='stars',
+                      description='Look up at the night sky with Esker and welcome the end of the universe.',
+                      brief='Stargazing with Esker',
+                      aliases=['stargaze'],
+                      pass_context=True
+                      )
+    async def stars(self, context):
+        """TODO: use self.star_chart to maintain a dictionary of the current loop,
+            a string representing the visible stars and a list of visible star indices from that string
+
+        | On the first call to stars or after using a debug parameter (e.stars reset/loop_start), the string is randomly
+          generated again to have N number of stars in it randomly scattered throughout, or using a % chance, or using
+          a list of star patterns/clusters? last one sounds too advanced idk.
+
+        | While generating this string, whenever the string is about to have a new star added its index is saved to
+          the list of visible star indices. We then shuffle this list once after finishing the string and now have a
+          random ordering of visible stars in the sky.
+
+        | Over the course of 22 mins, at even intervals (dependent on # of stars total) we slowly pop the front of that
+          index list and replace the corresponding char in the stars string with a blank space, so that they blink out
+          one by one (if we implement supernovas - want to first replace w a * or something and then remove it). By 1-2
+          mins left there should barely be any stars visible and once all the stars have vanished we have a countdown
+          to the ATP activating/chat spam from Esker with custom visuals as the supernova detonates and then everything
+          resets.
+
+        | The first call to e.stars will activate the time loop, then subsequent calls without params just show the
+          current state of the visible sky captioned with a comment from Esker. As the loop progresses, at major
+          intervals they start to change their tone a bit (50%, 75%, 90%) as they take notice of the dying universe.
+
+        | Additions: debug commands like above, using fields to store the timing of events for testing, random stars
+        replaced with ඞ which are not recorded/popped from list (mogus witnesses the death of the universe)"""
+        await context.send(embed=utils.make_embed(5, self, context))

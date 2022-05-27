@@ -1,5 +1,6 @@
 import random
 
+import cog_general
 import json
 
 import discord.ext
@@ -42,6 +43,11 @@ def choose_rock(user_hash):
     return rocks[user_hash % len(rocks)]
 
 
+def stargazing(star_chart):
+    # TODO: read from string and format as necessary?
+    return star_chart
+
+
 def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.ext.commands.Context) -> discord.Embed:
     """Creates an embed for putting in chat given a format indicator
     that should match the context from which make_embed() is called
@@ -49,7 +55,7 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
     | See type_to_file in this method but really this is just my own utility method"""
 
     # shorthand for writing out multiple command types pointing to same json
-    type_to_file = dict.fromkeys([0, 1, 2, 3, 4], 'default-embed')
+    type_to_file = dict.fromkeys([0, 1, 2, 3, 4, 5], 'default-embed')
 
     if embed_type not in type_to_file:
         raise BadEmbedTypeError
@@ -74,4 +80,11 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
                 # generate rock name from user id
                 user_hash = abs(hash(context.author.id))
                 embed.add_field(name="_ _", value=f"**I reckon you'd make a fine {choose_rock(user_hash)}, hatchling!**")
+            case 5:
+                cog = cog_general.General(cog)
+                # Make them say something slightly different each time
+                gaze_responses = [
+                    'Take a look!'
+                ]
+                embed.add_field(name=stargazing(cog.star_chart['stars']), value=random.choice(gaze_responses))
         return embed
