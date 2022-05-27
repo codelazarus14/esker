@@ -31,13 +31,13 @@ client.add_cog(cog_general.General(client))
 
 @client.event
 async def on_ready():
-    print('Logged in as {0.user}'.format(client))
+    print(f'Logged in as {client.user}')
 
 
 @client.event
 async def on_message(message):
     if client.user.mentioned_in(message) and message.content == client.user.mention:
-        await message.channel.send(utils.chat_styler("My prefixes are `{}`".format(BOT_PREFIX)))
+        await message.channel.send(f"My prefixes are `{BOT_PREFIX}`")
     # important! default on_message() is being overridden - pass message onto commands
     await client.process_commands(message)
 

@@ -1,5 +1,3 @@
-import random
-
 from discord.ext import commands
 
 import utils
@@ -20,15 +18,7 @@ class General(commands.Cog):
                       pass_context=True
                       )
     async def hello(self, context):
-        """Esker says hi!"""
-        responses = [
-            'Greetings, hatchling!',
-            'Hi there!',
-            'Hello!',
-            'Nice lunar weather we\'re having...',
-            'Welcome to the Lunar Outpost! I don\'t get visitors very often...'
-        ]
-        await context.send(utils.chat_styler(random.choice(responses)))
+        await context.send(embed=utils.make_embed(0, self, context))
 
     @commands.command(name='dialogue',
                       description='Relive your favorite bits of Mobius Digital Esker Dialogue™.',
@@ -42,7 +32,7 @@ class General(commands.Cog):
              lucabot-style random line regurgitation """
         # dtree = DialogueTree(dialogue.NODES, 'start')
         # await dtree.evaluate(dtree.nodes[0])
-        await context.send("sorry pal i gotta develop a dialogue system first")
+        await context.send(embed=utils.make_embed(1, self, context))
 
     @commands.command(name='mallow',
                       description='Toast a marshmallow to your liking, or even burn it to a crisp.',
@@ -52,7 +42,7 @@ class General(commands.Cog):
                       )
     async def mallow(self, context):
         """TODO: marshmallow minigame w pixel art or maybe just numbers for now"""
-        await context.send(utils.chat_styler("NO MALLOWS FOR YOU!"))
+        await context.send(embed=utils.make_embed(2, self, context))
 
     @commands.command(name='tunes',
                       description='Wanna listen to some tunes?',
@@ -64,10 +54,7 @@ class General(commands.Cog):
         """TODO: Reply with a random OST link if in text chat
 
         | in voice, put YouTube playlist of OST on shuffle"""
-        await context.send(
-            utils.chat_styler("Looks like the tape player is broken... again. Maybe I can ask Hornfels about it "
-                              "the next time they check up on me. They oughta be able to get Slate's engineering "
-                              "genius on board."))
+        await context.send(embed=utils.make_embed(3, self, context))
 
     @commands.command(name='rock_assn',
                       description='Discover your true Hearthian name!',
@@ -76,10 +63,4 @@ class General(commands.Cog):
                       pass_context=True
                       )
     async def rock_assn(self, context):
-        # list of rocks from https://en.wikipedia.org/wiki/List_of_rock_types
-        rocks = ["Arkose", "Basalt", "Breccia", "Gypsum", "Caliche", "Coquina", "Flint", "Ijolite"
-                                                                                         "Mariposite", "Skarn",
-                 "Pyrite", "Schist", "Scoria", "Shale", "Tufa"]
-        # generate rock name from user id
-        rock_index = abs(hash(context.author.id)) % len(rocks)
-        await context.send(utils.chat_styler("I reckon you'd make a fine " + rocks[rock_index] + ", hatchling!"))
+        await context.send(embed=utils.make_embed(4, self, context))
