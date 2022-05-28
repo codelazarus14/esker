@@ -20,9 +20,8 @@ handler = logging.FileHandler(filename='log/esker-bot.log', encoding='utf-8', mo
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-# TODO: make Cogs + files for different slash command types: https://docs.pycord.dev/en/master/ext/commands/cogs.html
+# TODO:
 #   add e.define = search outer wilds fan wiki for title of article + respond w intro paragraph
-#   add e.stars/constellation = like the tumblr post but uses asyncio over 22 mins to slowly remove them, also mogus
 #   copy useful code from rythm = playing audio, creating embeds
 
 client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX)
