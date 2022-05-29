@@ -69,9 +69,14 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
             case 2:
                 embed.add_field(name="_ _", value=f"**NO MALLOWS FOR YOU!**")
             case 3:
-                embed.add_field(name="_ _", value="**Looks like the tape player is broken... again. "
-                                                  "Maybe I can ask Hornfels about it the next time they check up on me."
-                                                  " They oughta be able to get Slate's engineering genius on board.**")
+                # if not in voice (text response)
+                if context.author.voice is None:
+                    embed.add_field(name="Here you go!", value="_ _", inline=False)
+                    # TODO: if not in voice - send YouTube link bc of file size limit
+
+                else:
+                    embed.add_field(name="Found one! The labels on these cassettes have peeled off"
+                                         " but it's all great stuff anyway.", value="_ _")
             case 4:
                 # generate rock name from user id
                 user_hash = abs(hash(context.author.id))

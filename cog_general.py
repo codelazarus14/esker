@@ -1,4 +1,5 @@
 import asyncio
+import os
 import random
 
 import discord
@@ -17,6 +18,7 @@ SYMBOL_SUPERNOVA = ["✶", "✦", "✹", "✧"]  # other options: ✦
 
 class MyHelpCommand(commands.DefaultHelpCommand):
     """Overriding default help message as an embed"""
+
     async def send_bot_help(self, mapping):
         destination = self.get_destination()
         help_emb = utils.make_embed(6, self.cog, self.context)
@@ -107,15 +109,45 @@ class General(commands.Cog):
         await context.send(embed=utils.make_embed(2, self, context))
 
     @commands.command(name='tunes',
-                      description='Wanna listen to some tunes?',
+                      description='Wanna listen to some tunes? If not, use `e.tunes stop`'
+                                  ' and I\'ll turn off the player',
                       brief='Do you hear music?',
                       aliases=['music', 'tune'],
                       pass_context=True
                       )
-    async def tunes(self, context):
-        """TODO: Reply with a random OST link if in text chat
+    async def tunes(self, context: discord.ext.commands.Context, *, stop: str = None):
+        # allows user to force disconnect whenever they want
+        if stop is not None and stop.lower() in ['stop', 'disconnect', 'd']:
+            if context.voice_client is not None and context.voice_client.is_playing():
+                await context.voice_client.disconnect()
+                await context.send(embed=discord.Embed(color=discord.Color.orange())
+                                   .add_field(name="Okay I hear ya!", value="_ _"))
+                return
 
-        | in voice, put YouTube playlist of OST on shuffle"""
+        # voice client handling code from rythm experience
+        # the text version will be handled in make_embed() since it only requires updating the embed
+        if context.author.voice is not None:
+            # grab file locally - no downloading bc I bought the soundtrack
+            fp = 'ost/Outer Wilds - Original Soundtrack/OST/'
+            files = os.listdir(os.getcwd() + "/" + fp)
+            # 1-28 OST tracks to choose from
+            rand_track = random.randint(1, 28)
+            to_play: str = ""
+            for f in files:
+                title = f.split(' - ')
+                # match track # in filename
+                if title[0] == f'{rand_track:02d}':
+                    to_play = fp + f
+
+            source: discord.AudioSource = discord.FFmpegPCMAudio(to_play)
+            if context.voice_client is None:
+                await context.author.voice.channel.connect()
+            else:
+                await context.voice_client.move_to(context.author.voice.channel)
+            vc: discord.VoiceClient = context.voice_client
+
+            if not vc.is_playing():
+                vc.play(source)
         await context.send(embed=utils.make_embed(3, self, context))
 
     @commands.command(name='rock_assn',
@@ -136,12 +168,9 @@ class General(commands.Cog):
     async def stars(self, context, *, args=None):
         """TODO:
 
-        | Over the course of 22 mins, at even intervals (dependent on # of stars total) we slowly pop the front of that
-          index list and replace the corresponding char in the stars string with a blank space, so that they blink out
-          one by one (if we implement supernovas - want to first replace w a * or something and then remove it). By 1-2
-          mins left there should barely be any stars visible and once all the stars have vanished we have a countdown
-          to the ATP activating/chat spam from Esker with custom visuals as the supernova detonates and then everything
-          resets.
+        | By 1-2 mins left there should barely be any stars visible and once all the stars have vanished we have a
+          countdown to the ATP activating/chat spam from Esker with custom visuals as the supernova detonates and
+          then everything resets.
 
         | The first call to e.stars will activate the time loop, then subsequent calls without params just show the
           current state of the visible sky captioned with a comment from Esker. As the loop progresses, at major
