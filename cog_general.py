@@ -53,6 +53,22 @@ class General(commands.Cog):
         self.star_chart = {"is_looping": False, "counter": 0, "stars": ["Nobody here but us chickens"], "visible": []}
         """dict of current visible stars in the sky that updates over the course of a loop\n
         "counter" = loop #, "stars" = char list - mutable, "visible" = list of visible star indices"""
+        self.gaze_responses = {
+            "early": ['Take a look!',
+                      'A sight for four eyes...\n'
+                      'By the look you\'re giving me, I\'d guess you\'re not a big fan of puns.',
+                      'Chert\'s the one with all the juicy details about these things.'
+                      ' I just think they\'re nice to look at.'],
+            "mid": ['Is it just me, or do the stars look different today?',
+                    'Lotta supernovae today. I might just be getting older but it feels like time '
+                    'is moving a little too fast.',
+                    'No shortage of interesting things going on. Chert must be getting quite a kick out of '
+                    'all this on Ember Twin.'],
+            "late": ['It\'s getting awfully quiet out there, don\'t you think?',
+                     'Only a few of them left now, I wonder what comes next..',
+                     'Seems like we\'re coming to the end of the line now. What awaits us next?']
+        }
+        """List of Esker's responses corresponding to current loop progress"""
         self._original_help_command = bot.help_command
         bot.help_command = MyHelpCommand()
         bot.help_command.cog = self
@@ -117,12 +133,8 @@ class General(commands.Cog):
                       aliases=['stargaze'],
                       pass_context=True
                       )
-    async def stars(self, context):
+    async def stars(self, context, *, args=None):
         """TODO:
-
-        | On the first call to stars or after using a debug parameter (e.stars reset/loop_start), the string is randomly
-          generated again to have N number of stars in it randomly scattered throughout, or using a % chance, or using
-          a list of star patterns/clusters? last one sounds too advanced idk.
 
         | Over the course of 22 mins, at even intervals (dependent on # of stars total) we slowly pop the front of that
           index list and replace the corresponding char in the stars string with a blank space, so that they blink out
@@ -137,6 +149,11 @@ class General(commands.Cog):
 
         | Additions: debug commands like above, random stars replaced with ඞ which are not recorded/popped from list
             (mogus witnesses the death of the universe)"""
+
+        # allow admin to force reset the loop
+        if args in ['start', 'reset'] and context.author.guild_permissions.administrator:
+            self.star_chart['is_looping'] = False
+
         if not self.star_chart['is_looping']:
             # on first call, initiate time loop
             self.star_chart['is_looping'] = True
@@ -172,15 +189,22 @@ class General(commands.Cog):
             death_interval = TIME_LOOP / len(self.star_chart['visible'])  # loop length/num of stars
             asyncio.create_task(self.universe_death(int(death_interval)))
 
+        embed = utils.make_embed(5, self, context)
+        rtype = self.response_type()
+        embed.add_field(name=random.choice(self.gaze_responses[rtype]), value="_ _", inline=False)
+
         # keep updating message embed - convenience feature for testing, might not keep in final
         # instead, could replace with a method that makes esker reply about their concern
         # and prompt someone to call e.stars again
-        msg: discord.Message = await context.send(embed=utils.make_embed(5, self, context))
+        msg: discord.Message = await context.send(embed=embed)
         msg_id = msg.id
         asyncio.create_task(self.update_msg(context, msg_id))
 
     async def universe_death(self, death_interval):
         while len(self.star_chart['visible']) > 0:
+            print(len(self.star_chart['visible']))
+            print(len(self.star_chart['visible']) / len(self.star_chart['stars']))
+
             rand_interval = random.randint(death_interval - 5, death_interval + 5)
             await asyncio.sleep(rand_interval)  # time to wait between supernovae
             supernova_index = self.star_chart['visible'].pop()
@@ -210,6 +234,22 @@ class General(commands.Cog):
             # could throw an exception if message was deleted
             try:
                 msg: discord.Message = await context.channel.fetch_message(msg_id)
-                await msg.edit(embed=utils.make_embed(5, self, context))
+                # want to keep response same for the embed, only update when necessary
+                # TODO: update response if loop progression means Esker switches moods..?
+                prev_response: discord.embeds.EmbedProxy = msg.embeds[0].fields[1]
+                emb = utils.make_embed(5, self, context)
+                emb.add_field(name=prev_response.name, value="_ _", inline=False)
+                await msg.edit(embed=emb)
             except discord.NotFound:
                 return
+
+    def response_type(self):
+        response_thresholds = [0.1, 0.05]
+        # determine Esker's response by progress through loop
+        if len(self.star_chart['visible']) / len(self.star_chart['stars']) > response_thresholds[0]:
+            rtype = 'early'
+        elif len(self.star_chart['visible']) / len(self.star_chart['stars']) > response_thresholds[1]:
+            rtype = 'mid'
+        else:
+            rtype = 'late'
+        return rtype

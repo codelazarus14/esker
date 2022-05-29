@@ -78,12 +78,7 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
                 embed.add_field(name="_ _",
                                 value=f"**I reckon you'd make a fine {choose_rock(user_hash)}, hatchling!**")
             case 5:
-                # TODO: make them say something slightly different each time/based on loop progression
-                gaze_responses = [
-                    'Take a look!'
-                ]
                 embed.add_field(name="_ _", value=stargazing(cog.star_chart), inline=False)
-                embed.add_field(name=random.choice(gaze_responses), value="_ _", inline=False)
             case 6:
                 # bot help: extract commands from each cog
                 for cog_name in context.bot.cogs:
