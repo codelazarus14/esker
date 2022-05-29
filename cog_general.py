@@ -66,7 +66,7 @@ class General(commands.Cog):
                     'all this on Ember Twin.'],
             "late": ['It\'s getting awfully quiet out there, don\'t you think?',
                      'Only a few of them left now, I wonder what comes next..',
-                     'Seems like we\'re coming to the end of the line now. What awaits us next?']
+                     'Seems like we\'re coming to the end of the line now. I could use some time off.']
         }
         """List of Esker's responses corresponding to current loop progress"""
         self._original_help_command = bot.help_command
