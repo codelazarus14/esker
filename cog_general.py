@@ -7,17 +7,22 @@ from discord.ext import commands
 
 import utils
 
-TIME_LOOP = 22 * 60
+TIME_LOOP = 3 * 60
 """Number of seconds in the time loop"""
 # TODO: fix monospaced chars not actually being.. monospaced
 #   mostly the fault of the 3 largest supernova ones..
 SYMBOL_BLANK = " "
 SYMBOL_STARS = ["٭", "⭒", "⭑"]
 SYMBOL_SUPERNOVA = ["✶", "✦", "✹", "✧"]  # other options: ✦
+RESPONSE_THRESHOLDS = [0.1, 0.05]
 
 
 class MyHelpCommand(commands.DefaultHelpCommand):
     """Overriding default help message as an embed"""
+    def __init__(self, **options):
+        super().__init__(**options)
+        # on override, the help command's attrs are reset
+        self.command_attrs['description'] = 'Shows this message'
 
     async def send_bot_help(self, mapping):
         destination = self.get_destination()
@@ -39,12 +44,7 @@ class MyHelpCommand(commands.DefaultHelpCommand):
         help_emb = utils.make_embed(8, self.cog, self.context)
         help_emb.set_author(name=f"Showing help for command: {command.name}",
                             icon_url=self.context.bot.user.avatar_url)
-        # TODO: fix help command description
-        # help's description is blank after override
-        if command.name == 'help':
-            desc = 'Shows this message'
-        else:
-            desc = command.description
+        desc = command.description
         help_emb.description = f"`{self.get_command_signature(command)}`\n\n{desc}"
         await destination.send(embed=help_emb)
 
@@ -116,17 +116,20 @@ class General(commands.Cog):
                       pass_context=True
                       )
     async def tunes(self, context: discord.ext.commands.Context, *, stop: str = None):
-        # allows user to force disconnect whenever they want
-        if stop is not None and stop.lower() in ['stop', 'disconnect', 'd']:
-            if context.voice_client is not None and context.voice_client.is_playing():
-                await context.voice_client.disconnect()
-                await context.send(embed=discord.Embed(color=discord.Color.orange())
-                                   .add_field(name="Okay I hear ya!", value="_ _"))
+        # allows users to force disconnect whenever they want
+        if stop is not None:
+            if stop.lower() in ['stop', 'disconnect', 'd']:
+                if context.voice_client is not None and context.voice_client.is_playing():
+                    await context.voice_client.disconnect()
+                    await context.send(embed=discord.Embed(color=discord.Color.orange())
+                                       .add_field(name="Okay I hear ya!", value="_ _"))
+                    return
+            else:
+                await context.send(embed=discord.Embed(colour=discord.Color.orange())
+                                   .add_field(name="Sorry, didn't catch that one? Did you mean `e.tunes stop`?",
+                                              value="_ _"))
                 return
-
-        # voice client handling code from rythm experience
-        # the text version will be handled in make_embed() since it only requires updating the embed
-        if context.author.voice is not None:
+        elif context.author.voice is not None:
             # grab file locally - no downloading bc I bought the soundtrack
             fp = 'ost/Outer Wilds - Original Soundtrack/OST/'
             files = os.listdir(os.getcwd() + "/" + fp)
@@ -139,6 +142,7 @@ class General(commands.Cog):
                 if title[0] == f'{rand_track:02d}':
                     to_play = fp + f
 
+            # voice client handling code from rythm experience
             source: discord.AudioSource = discord.FFmpegPCMAudio(to_play)
             if context.voice_client is None:
                 await context.author.voice.channel.connect()
@@ -148,7 +152,16 @@ class General(commands.Cog):
 
             if not vc.is_playing():
                 vc.play(source)
-        await context.send(embed=utils.make_embed(3, self, context))
+            await context.send(embed=utils.make_embed(3, self, context))
+        else:
+            # if not in voice (text response)
+            # list of YouTube video ids in order (1-28)
+            ost_ids = ['SPa8bPqQfmo', 'Xpkc-NU1KA0', 'RmouAm4pXLE', 'W9p-yVwF71o', 'lSo4f1hBI0w', 'bcEoHjGdbbY',
+                       'vfCxLVQaSis', 'HkslC6TrCIM', 'b8cggVGj--I', 't5vG4Be1Ci8', 'zB5lEhUxwDU', '7Y3xbA4gsis',
+                       '0ddvyyyCCD4', 'yHNf6vQ0HFs', '7Kem5iuzW54', 'KQrcRTA6_5M', '6zlSUvWU6z8', 'VtQ2gOoIUiU',
+                       'MdWU7Qsc0kY', 'z34enKCqRGk', 'tlmUSX5Jsmc', 'XOrygf_iLhw', 'VcmPOvy4hHA', 'DxG574HUn3c',
+                       '5MIYydxcJkU', '9N-5fCFEcs0', 'u_SEqF9bygQ', 'Ht4HxSpUN60']
+            await context.send(f'https://youtube.com/watch?v={random.choice(ost_ids)}')
 
     @commands.command(name='rock_assn',
                       description='Discover your true Hearthian name!',
@@ -166,15 +179,9 @@ class General(commands.Cog):
                       pass_context=True
                       )
     async def stars(self, context, *, args=None):
-        """TODO:
-
-        | By 1-2 mins left there should barely be any stars visible and once all the stars have vanished we have a
-          countdown to the ATP activating/chat spam from Esker with custom visuals as the supernova detonates and
-          then everything resets.
-
-        | The first call to e.stars will activate the time loop, then subsequent calls without params just show the
-          current state of the visible sky captioned with a comment from Esker. As the loop progresses, at major
-          intervals they start to change their tone a bit (50%, 75%, 90%) as they take notice of the dying universe.
+        """TODO: By 1-2 mins left there should barely be any stars visible and once all the stars have vanished we have a
+            countdown to the ATP activating/chat spam from Esker with custom visuals as the supernova detonates and
+            then everything resets.
 
         | Additions: debug commands like above, random stars replaced with ඞ which are not recorded/popped from list
             (mogus witnesses the death of the universe)"""
@@ -259,25 +266,29 @@ class General(commands.Cog):
     async def update_msg(self, context, msg_id):
         """Async function to keep bot updating previous e.stars embeds"""
         while len(self.star_chart['visible']) > 0:
+            # update interval - 3 seconds seems about enough
             await asyncio.sleep(3)
             # could throw an exception if message was deleted
             try:
                 msg: discord.Message = await context.channel.fetch_message(msg_id)
                 # want to keep response same for the embed, only update when necessary
-                # TODO: update response if loop progression means Esker switches moods..?
-                prev_response: discord.embeds.EmbedProxy = msg.embeds[0].fields[1]
+                prev_response: str = msg.embeds[0].fields[1].name
+                # if Esker's response is from a previous mood/stage of universe death, update
+                if prev_response not in self.gaze_responses[self.response_type()]:
+                    prev_response = random.choice(self.gaze_responses[self.response_type()])
+                    print(f"new response: {prev_response}")
+
                 emb = utils.make_embed(5, self, context)
-                emb.add_field(name=prev_response.name, value="_ _", inline=False)
+                emb.add_field(name=prev_response, value="_ _", inline=False)
                 await msg.edit(embed=emb)
             except discord.NotFound:
                 return
 
     def response_type(self):
-        response_thresholds = [0.1, 0.05]
         # determine Esker's response by progress through loop
-        if len(self.star_chart['visible']) / len(self.star_chart['stars']) > response_thresholds[0]:
+        if len(self.star_chart['visible']) / len(self.star_chart['stars']) > RESPONSE_THRESHOLDS[0]:
             rtype = 'early'
-        elif len(self.star_chart['visible']) / len(self.star_chart['stars']) > response_thresholds[1]:
+        elif len(self.star_chart['visible']) / len(self.star_chart['stars']) > RESPONSE_THRESHOLDS[1]:
             rtype = 'mid'
         else:
             rtype = 'late'

@@ -1,13 +1,12 @@
 # Esker's heart and soul
 import asyncio
 import logging
+import os
 
 import discord.ext.commands
-import os
 from dotenv import load_dotenv
 
 import cog_general
-import utils
 
 load_dotenv()
 
@@ -30,7 +29,7 @@ client.add_cog(cog_general.General(client))
 
 @client.event
 async def on_ready():
-    print(f'Logged in as {client.user}')
+    print(f'Logged in as {client.user}\n----------')
 
 
 @client.event
@@ -41,11 +40,10 @@ async def on_message(message):
     await client.process_commands(message)
 
 
-# TODO: fix or delete
 async def list_servers():
     await client.wait_until_ready()
-    while not client.is_closed:
-        print("Current servers:")
+    while True:
+        print(">>Current servers:")
         for server in client.guilds:
             print(server.name)
         await asyncio.sleep(600)

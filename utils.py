@@ -39,7 +39,6 @@ def choose_rock(user_hash):
 
 
 def stargazing(star_chart):
-    # TODO: read from string and format as necessary?
     return f"```{''.join(star_chart['stars'])}```"
 
 
@@ -69,11 +68,8 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
             case 2:
                 embed.add_field(name="_ _", value=f"**NO MALLOWS FOR YOU!**")
             case 3:
-                # if not in voice (text response)
                 if context.author.voice is None:
                     embed.add_field(name="Here you go!", value="_ _", inline=False)
-                    # TODO: if not in voice - send YouTube link bc of file size limit
-
                 else:
                     embed.add_field(name="Found one! The labels on these cassettes have peeled off"
                                          " but it's all great stuff anyway.", value="_ _")
@@ -102,12 +98,7 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
                 if len(cmds) > 0:
                     for i in range(len(cmds) - 1):
                         cmd_names += f"*{cmds[i]}*\n"
-                        # TODO: fix help command description
-                        # help's description is blank after overwrite
-                        if cmds[i].qualified_name == 'help':
-                            cmd_briefs += 'Shows this message'
-                        else:
-                            cmd_briefs += f"{cmds[i].brief}\n"
+                        cmd_briefs += f"{cmds[i].brief}\n"
                     cmd_names += f"*{cmds[len(cmds) - 1]}*"
                     # help's description is blank after overwrite
                     if cmds[len(cmds) - 1].qualified_name == 'help':
