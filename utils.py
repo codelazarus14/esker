@@ -2,6 +2,7 @@ import random
 
 import discord.ext
 
+import cog_fun
 import json
 
 
@@ -62,25 +63,29 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
         # update each template with data from context
         match embed_type:
             case 0:
-                embed.add_field(name="_ _", value=f"**{say_hi()}**")
+                embed.add_field(name=say_hi(), value="_ _")
             case 1:
-                embed.add_field(name="_ _", value=f"**{say_dialogue()}**")
+                embed.add_field(name=say_dialogue(), value="_ _")
             case 2:
-                embed.add_field(name="_ _", value=f"**NO MALLOWS FOR YOU!**")
+                embed.add_field(name="NO MALLOWS FOR YOU!", value=f"_ _")
             case 3:
-                if context.author.voice is None:
-                    embed.add_field(name="Here you go!", value="_ _", inline=False)
-                else:
-                    embed.add_field(name="Found one! The labels on these cassettes have peeled off"
-                                         " but it's all great stuff anyway.", value="_ _")
+                # extract track name from filename
+                cog: cog_fun.Fun
+                name: str = f'Track {cog.curr_audio.split(".mp3")[0]}'
+                responses = [f"Let's see here... found one! \n\nThis one's labeled `{name}`",
+                             f"It's a bit smudged, but I've never been able to read Slate's handwriting either way.\n\n"
+                             f"I think this one says... `{name}`",
+                             f"Get ready for `{name}`!"]
+                embed.add_field(name=random.choice(responses), value="_ _")
             case 4:
                 # generate rock name from user id
                 user_hash = abs(hash(context.author.id))
                 embed.add_field(name="_ _",
                                 value=f"**I reckon you'd make a fine {choose_rock(user_hash)}, hatchling!**")
             case 5:
+                cog: cog_fun.Fun
                 embed.add_field(name="_ _", value=stargazing(cog.star_chart), inline=False)
-                # best nomai mask high contrast image i could find on google
+                # best nomai mask high contrast image I could find on Google
                 embed.set_footer(text=f"{cog.star_chart['counter']:,}",
                                  icon_url='https://ih1.redbubble.net/image.881198846.0086/flat,750x1000,075,f.jpg')
             case 6:

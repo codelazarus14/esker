@@ -6,6 +6,7 @@ import os
 import discord.ext.commands
 from dotenv import load_dotenv
 
+import cog_fun
 import cog_general
 
 load_dotenv()
@@ -25,6 +26,7 @@ logger.addHandler(handler)
 
 client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX)
 client.add_cog(cog_general.General(client))
+client.add_cog(cog_fun.Fun(client))
 
 
 @client.event
