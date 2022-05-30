@@ -80,6 +80,9 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
                                 value=f"**I reckon you'd make a fine {choose_rock(user_hash)}, hatchling!**")
             case 5:
                 embed.add_field(name="_ _", value=stargazing(cog.star_chart), inline=False)
+                # best nomai mask high contrast image i could find on google
+                embed.set_footer(text=f"{cog.star_chart['counter']:,}",
+                                 icon_url='https://ih1.redbubble.net/image.881198846.0086/flat,750x1000,075,f.jpg')
             case 6:
                 # bot help: extract commands from each cog
                 for cog_name in context.bot.cogs:

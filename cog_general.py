@@ -7,7 +7,7 @@ from discord.ext import commands
 
 import utils
 
-TIME_LOOP = 3 * 60
+TIME_LOOP = 22 * 60
 """Number of seconds in the time loop"""
 # TODO: fix monospaced chars not actually being.. monospaced
 #   mostly the fault of the 3 largest supernova ones..
@@ -52,7 +52,8 @@ class MyHelpCommand(commands.DefaultHelpCommand):
 class General(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
-        self.star_chart = {"is_looping": False, "counter": 0, "stars": ["Nobody here but us chickens"], "visible": []}
+        self.star_chart = {"is_looping": False, "counter": 9318054,
+                           "stars": ["Nobody here but us chickens"], "visible": []}
         """dict of current visible stars in the sky that updates over the course of a loop\n
         "counter" = loop #, "stars" = char list - mutable, "visible" = list of visible star indices"""
         self.gaze_responses = {
@@ -180,13 +181,13 @@ class General(commands.Cog):
                       )
     async def stars(self, context, *, args=None):
         """TODO: By 1-2 mins left there should barely be any stars visible and once all the stars have vanished we
-        have a countdown to the ATP activating/chat spam from Esker with custom visuals as the supernova detonates
-        and then everything resets.
+            have a countdown to the ATP activating/chat spam from Esker with custom visuals as the supernova detonates
+            and then everything resets.
 
         | Additions: debug commands like above, random stars replaced with ඞ which are not recorded/popped from list
             (mogus witnesses the death of the universe)"""
 
-        # allow admin to force reset the loop
+        # allow admin to force reset - skips to next loop
         if args in ['start', 'reset'] and context.author.guild_permissions.administrator:
             self.star_chart['is_looping'] = False
 
@@ -208,12 +209,14 @@ class General(commands.Cog):
                     star_str[i] = "\n"
                     add_space = False
                 elif random.randint(1, 100) <= star_freq and not add_space:  # use star_freq to determine frequency
-                    star_str[i] = random.choice(SYMBOL_STARS)
-                    star_indices.append(i)
+                    if random.randint(1, 500) <= 1:  # roll another die to see if we get mogus
+                        star_str[i] = 'ඞ'
+                    else:
+                        star_str[i] = random.choice(SYMBOL_STARS)
+                        star_indices.append(i)
                     add_space = True  # force padding between stars on next iteration
                     i -= 1
                 else:
-                    # TODO: small chance to add ඞ
                     add_space = False
             # shuffle indices for random ordering
             random.shuffle(star_indices)
@@ -265,22 +268,23 @@ class General(commands.Cog):
 
     async def update_msg(self, context, msg_id):
         """Async function to keep bot updating previous e.stars embeds"""
-        while len(self.star_chart['visible']) > 0:
-            # update interval - 3 seconds seems about enough
-            await asyncio.sleep(3)
+        while self.star_chart['is_looping']:
+            # update interval - 1320 / (1320/4=330) = 4 seconds
+            await asyncio.sleep(TIME_LOOP / (TIME_LOOP / 4))
             # could throw an exception if message was deleted
             try:
                 msg: discord.Message = await context.channel.fetch_message(msg_id)
-                # want to keep response same for the embed, only update when necessary
-                prev_response: str = msg.embeds[0].fields[1].name
-                # if Esker's response is from a previous mood/stage of universe death, update
-                if prev_response not in self.gaze_responses[self.response_type()]:
-                    prev_response = random.choice(self.gaze_responses[self.response_type()])
-                    print(f"new response: {prev_response}")
+                if msg.embeds[0].footer.text == f'{self.star_chart["counter"]:,}':
+                    # want to keep response same for the embed, only update when necessary
+                    prev_response: str = msg.embeds[0].fields[1].name
+                    # if Esker's response is from a previous mood/stage of universe death, update
+                    if prev_response not in self.gaze_responses[self.response_type()]:
+                        prev_response = random.choice(self.gaze_responses[self.response_type()])
+                        print(f"new response: {prev_response}")
 
-                emb = utils.make_embed(5, self, context)
-                emb.add_field(name=prev_response, value="_ _", inline=False)
-                await msg.edit(embed=emb)
+                    emb = utils.make_embed(5, self, context)
+                    emb.add_field(name=prev_response, value="_ _", inline=False)
+                    await msg.edit(embed=emb)
             except discord.NotFound:
                 return
 
