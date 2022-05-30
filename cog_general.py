@@ -65,6 +65,10 @@ class General(commands.Cog):
         # await dtree.evaluate(dtree.nodes[0])
         await context.send(embed=utils.make_embed(1, self, context))
 
+    @commands.command()
+    async def define(self, context):
+        await context.send(embed=utils.make_embed(9, self, context))
+
     @commands.command(name='rock_assn',
                       description='Discover your true Hearthian name!',
                       brief='Assigned rock at slash command',

@@ -50,7 +50,7 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
     | See type_to_file in this method but really this is just my own utility method"""
 
     # shorthand for writing out multiple command types pointing to same json
-    type_to_file = dict.fromkeys([0, 1, 2, 3, 4, 5], 'default-embed')
+    type_to_file = dict.fromkeys([0, 1, 2, 3, 4, 5, 9], 'default-embed')
     type_to_file.update(dict.fromkeys([6, 7, 8], 'help-embed'))
 
     if embed_type not in type_to_file:
@@ -117,4 +117,15 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
                 embed.add_field(name="Commands:", value=cmd_names)
                 # separate column (inline field) for briefs
                 embed.add_field(name="_ _", value=cmd_briefs)
+            case 9:
+                query = context.message.content.split()
+                if len(query) > 1:
+                    url = 'https://outerwilds.fandom.com/wiki/Kousa'
+                    embed.add_field(name=f"You wanna know about {' '.join(query[1:])}, huh?",
+                                    value=f"Here's what I know: {url}", inline=False)
+                    # TODO: see below on e.define implementation
+                    embed.add_field(name="To get the rich-presence information that Discord uses check out a website's"
+                                    " meta tags for properties like og:image in a aiohttp request", value="_ _")
+                else:
+                    embed.add_field(name="Er, you gonna ask me what you wanted to know about?", value="_ _")
         return embed
