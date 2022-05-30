@@ -179,9 +179,9 @@ class General(commands.Cog):
                       pass_context=True
                       )
     async def stars(self, context, *, args=None):
-        """TODO: By 1-2 mins left there should barely be any stars visible and once all the stars have vanished we have a
-            countdown to the ATP activating/chat spam from Esker with custom visuals as the supernova detonates and
-            then everything resets.
+        """TODO: By 1-2 mins left there should barely be any stars visible and once all the stars have vanished we
+        have a countdown to the ATP activating/chat spam from Esker with custom visuals as the supernova detonates
+        and then everything resets.
 
         | Additions: debug commands like above, random stars replaced with ඞ which are not recorded/popped from list
             (mogus witnesses the death of the universe)"""

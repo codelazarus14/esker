@@ -43,9 +43,9 @@ async def on_message(message):
 async def list_servers():
     await client.wait_until_ready()
     while True:
-        print(">>Current servers:")
+        print("Current servers:")
         for server in client.guilds:
-            print(server.name)
+            print(f">> {server.name}")
         await asyncio.sleep(600)
 
 
