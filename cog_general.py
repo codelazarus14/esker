@@ -7,6 +7,10 @@ from discord.ext import commands
 
 class MyHelpCommand(commands.DefaultHelpCommand):
     """Overriding default help message as an embed"""
+    def __init__(self, **options):
+        super().__init__(**options)
+        self.command_attrs['description'] = 'Shows this message'
+
     async def send_bot_help(self, mapping):
         destination = self.get_destination()
         with open(f'json/help-embed.json', 'r') as embed_json:
@@ -43,12 +47,7 @@ class MyHelpCommand(commands.DefaultHelpCommand):
             if len(cmds) > 0:
                 for i in range(len(cmds) - 1):
                     cmd_names += f"*{cmds[i]}*\n"
-                    # TODO: fix help command description
-                    # help's description is blank after overwrite
-                    if cmds[i].qualified_name == 'help':
-                        cmd_briefs += 'Shows this message'
-                    else:
-                        cmd_briefs += f"{cmds[i].brief}\n"
+                    cmd_briefs += f"{cmds[i].brief}\n"
                 cmd_names += f"*{cmds[len(cmds) - 1]}*"
                 # help's description is blank after overwrite
                 if cmds[len(cmds) - 1].qualified_name == 'help':
@@ -69,12 +68,7 @@ class MyHelpCommand(commands.DefaultHelpCommand):
             help_emb = discord.Embed().from_dict(embed_dict)
             help_emb.set_author(name=f"Showing help for command: {command.name}",
                                 icon_url=self.context.bot.user.avatar_url)
-            # TODO: fix help command description
-            # help's description is blank after override
-            if command.name == 'help':
-                desc = 'Shows this message'
-            else:
-                desc = command.description
+            desc = command.description
             help_emb.description = f"`{self.get_command_signature(command)}`\n\n{desc}"
             await destination.send(embed=help_emb)
 
