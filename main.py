@@ -20,6 +20,8 @@ handler = logging.FileHandler(filename='log/esker-bot.log', encoding='utf-8', mo
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
+# TODO: revisit Esker's dialogue bc i want to make it perfect
+
 client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX)
 client.add_cog(cog_general.General(client))
 client.add_cog(cog_fun.Fun(client))

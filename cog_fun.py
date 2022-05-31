@@ -7,13 +7,14 @@ from discord.ext import commands
 
 import utils
 
-TIME_LOOP = 22 * 60
+TIME_LOOP = 1 * 60
 """Number of seconds in the time loop"""
 # TODO: fix monospaced chars not actually being.. monospaced
 #   mostly the fault of the 3 largest supernova ones..
 SYMBOL_BLANK = " "
 SYMBOL_STARS = ["٭", "⭒", "⭑"]
-SYMBOL_SUPERNOVA = ["✶", "✦", "✹", "✧"]  # other options: ✦
+SYMBOL_SUPERNOVA = ["✶", "✦", "✹", "✧"]
+SYMBOL_END = ['■']
 RESPONSE_THRESHOLDS = [0.1, 0.05]
 
 
@@ -38,7 +39,8 @@ class Fun(commands.Cog):
                     'all this on Ember Twin.'],
             "late": ['It\'s getting awfully quiet out there, don\'t you think?',
                      'Only a few of them left now, I wonder what comes next..',
-                     'Seems like we\'re coming to the end of the line now. I could use some time off.']
+                     'Seems like we\'re coming to the end of the line now. I could use some time off.'],
+            'end': ['Oh well. Bit of an awkward way to go, but at least you\'re still here with me.']
         }
         """List of Esker's responses corresponding to current loop progress"""
 
@@ -120,13 +122,6 @@ class Fun(commands.Cog):
                       pass_context=True
                       )
     async def stars(self, context, *, args=None):
-        """TODO: By 1-2 mins left there should barely be any stars visible and once all the stars have vanished we
-            have a countdown to the ATP activating/chat spam from Esker with custom visuals as the supernova detonates
-            and then everything resets.
-
-        | Additions: debug commands like above, random stars replaced with ඞ which are not recorded/popped from list
-            (mogus witnesses the death of the universe)"""
-
         # allow admin to force reset - skips to next loop
         if args in ['start', 'reset'] and context.author.guild_permissions.administrator:
             self.star_chart['is_looping'] = False
@@ -135,15 +130,14 @@ class Fun(commands.Cog):
             # on first call, initiate time loop
             self.star_chart['is_looping'] = True
             self.star_chart['counter'] += 1
-            print(f"Beginning loop {self.star_chart['counter']}: generating star chart data")
+            print(f"Beginning loop {self.star_chart['counter']:,}: generating star chart data")
             star_freq = 15
             length = 720
             add_space = False
             star_str = [SYMBOL_BLANK] * length
             star_indices = []
             # randomly fill star string with stars each loop - not compatible lore-wise, but I like
-            # having a new arrangement each time, maybe we're just looking at a different patch of sky
-            # TODO: improve random star clustering so it doesn't look as streaky
+            # having a diff sky each time? maybe we're just looking at a different patch of it
             for i in range(length):  # 12 lines * 60 (monospaced char line length) = landscape orientation
                 if i % 60 == 0:
                     star_str[i] = "\n"
@@ -184,11 +178,12 @@ class Fun(commands.Cog):
             print(len(self.star_chart['visible']))
             print(len(self.star_chart['visible']) / len(self.star_chart['stars']))
 
-            rand_interval = random.randint(death_interval - 5, death_interval + 5)
+            rand_interval = random.randint(death_interval - 3, death_interval + 3)
             await asyncio.sleep(rand_interval)  # time to wait between supernovae
             supernova_index = self.star_chart['visible'].pop()
             asyncio.create_task(self.star_death(supernova_index, death_interval))
-        print("No more stars left")
+        # no more stars left
+        self.star_chart['is_looping'] = False
 
     async def star_death(self, index, duration):
         self.star_chart['stars'][index] = SYMBOL_SUPERNOVA[0]  # other options ✦
@@ -226,7 +221,10 @@ class Fun(commands.Cog):
                     emb.add_field(name=prev_response, value="_ _", inline=False)
                     await msg.edit(embed=emb)
             except discord.NotFound:
+                print(f"No message found matching {msg_id}")
                 return
+        # we're at the end - trigger the loop finale
+        await self.the_end(context, msg_id)
 
     def response_type(self):
         # determine Esker's response by progress through loop
@@ -237,3 +235,43 @@ class Fun(commands.Cog):
         else:
             rtype = 'late'
         return rtype
+
+    async def the_end(self, context, msg_id):
+        try:
+            msg: discord.Message = await context.channel.fetch_message(msg_id)
+        except discord.NotFound:
+            print(f"No message found matching {msg_id} to end the universe")
+            return
+        # Esker's final words
+        emb = utils.make_embed(5, self, context)
+        resp = random.choice(self.gaze_responses['end'])
+        emb.add_field(name=resp, value="_ _", inline=False)
+        await msg.edit(embed=emb)
+        await asyncio.sleep(3)
+        # slowly (asyncio.sleep) replace all the strings with exploding supernova
+        total_stars = range(len(self.star_chart['stars']))
+        for i in reversed(total_stars):
+            if i % 60 != 0:
+                # looks like a smooth curve if you squint at it
+                # TODO: make the entire field be filled by the end
+                if 28 < i % 60 < 32:
+                    self.star_chart['stars'][i] = SYMBOL_END[0]
+                if 16 < i % 60 < 44 and i + 60 < len(total_stars):
+                    self.star_chart['stars'][i+60] = SYMBOL_END[0]
+                elif 8 < i % 60 < 52 and i + 120 < len(total_stars):
+                    self.star_chart['stars'][i+120] = SYMBOL_END[0]
+                elif 2 < i % 60 < 58 and i + 180 < len(total_stars):
+                    self.star_chart['stars'][i+180] = SYMBOL_END[0]
+                elif i + 240 < len(total_stars):
+                    self.star_chart['stars'][i+240] = SYMBOL_END[0]
+            else:
+                # after finishing a line, update embed to show progression vertically
+                emb = utils.make_embed(5, self, context)
+                emb.add_field(name=resp, value="_ _", inline=False)
+                await msg.edit(embed=emb)
+                await asyncio.sleep(3)
+        # clear esker's last message
+        emb = utils.make_embed(5, self, context)
+        emb.set_footer(text='_ _', icon_url="_ _")
+        await msg.edit(embed=utils.make_embed(5, self, context))
+        print(f"Loop {self.star_chart['counter']:,} has ended")
