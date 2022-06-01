@@ -127,7 +127,7 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
                     embed.title = f"\"*{q['query'][0]}*\", eh?"
                     if q['url']:
                         embed.description = f"After some digging around, I found this:"
-                        embed.add_field(name=f"{q['title']}:", value=f"{q['description']}...", inline=False)
+                        embed.add_field(name=f"{q['title']}:", value=f"{q['description']}", inline=False)
                         embed.add_field(name=f"{q['url']}", value="_ _", inline=False)
                         embed.set_image(url=q['image'])
                         embed.set_footer(text=f"{q['name']} | Accessed {time.asctime()}", icon_url=f"{q['icon']}")

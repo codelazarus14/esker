@@ -81,10 +81,11 @@ class General(commands.Cog):
     async def define(self, context, *, query=None):
         if query is not None:
             # convert their input to field and then generate embed
-            # TODO: not working for most queries - figure out why
             search = 'https://outerwilds.fandom.com/wiki/Special:Search'
-            # store their text input and url encoded version (nested list for params)
-            self.query = {'query': [query, [('query', urllib.parse.quote(query))]]}
+            # store their text input and params for url
+            self.query = {'query': [query, [('query', urllib.parse.quote(query)),
+                                            ('scope', 'internal'),
+                                            ('navigationSearch', 1)]]}
             async with aiohttp.ClientSession() as session:
                 async with session.get(search, params=self.query['query'][1]) as resp:
                     # made it to the page unharmed
@@ -99,6 +100,7 @@ class General(commands.Cog):
                             async with session.get(result_url.group(1)) as resp2:
                                 body2 = await resp2.text()
                                 print(body2)
+                                # TODO: maybe just use first paragraph instead of whole description?
                                 extract_regex = ['<meta property="og:site_name" content="(.+?)"/>',
                                                  '<meta property="og:title" content="(.+?)"/>',
                                                  '<meta property="og:description" content="(.+?)"/>',
