@@ -1,8 +1,10 @@
 import random
+import time
 
 import discord.ext
 
 import cog_fun
+import cog_general
 import json
 
 
@@ -118,14 +120,20 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
                 # separate column (inline field) for briefs
                 embed.add_field(name="_ _", value=cmd_briefs)
             case 9:
-                query = context.message.content.split()
-                if len(query) > 1:
-                    url = 'https://outerwilds.fandom.com/wiki/Kousa'
-                    embed.add_field(name=f"You wanna know about {' '.join(query[1:])}, huh?",
-                                    value=f"Here's what I know: {url}", inline=False)
-                    # TODO: see below on e.define implementation
-                    embed.add_field(name="To get the rich-presence information that Discord uses check out a website's"
-                                    " meta tags for properties like og:image in a aiohttp request", value="_ _")
+                cog: cog_general.General
+                q = cog.query
+                if q is not None:
+                    # ['query'][0] is first item in tuple - raw text, [1] is the url encoding
+                    embed.title = f"\"*{q['query'][0]}*\", eh?"
+                    if q['url']:
+                        embed.description = f"After some digging around, I found this:"
+                        embed.add_field(name=f"{q['title']}:", value=f"{q['description']}...", inline=False)
+                        embed.add_field(name=f"{q['url']}", value="_ _", inline=False)
+                        embed.set_image(url=q['image'])
+                        embed.set_footer(text=f"{q['name']} | Accessed {time.asctime()}", icon_url=f"{q['icon']}")
+                    else:
+                        # search query failed on the wiki
+                        embed.description = f"Huh. I don't think I have any information on that right now.."
                 else:
                     embed.add_field(name="Er, you gonna ask me what you wanted to know about?", value="_ _")
         return embed

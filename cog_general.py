@@ -1,3 +1,8 @@
+import html
+import re
+import urllib.parse
+
+import aiohttp
 from discord.ext import commands
 
 import utils
@@ -41,6 +46,7 @@ class General(commands.Cog):
         self._original_help_command = bot.help_command
         bot.help_command = MyHelpCommand()
         bot.help_command.cog = self
+        self.query = None
 
     @commands.command(name='hello',
                       description='Say hi to an old friend.',
@@ -65,9 +71,60 @@ class General(commands.Cog):
         # await dtree.evaluate(dtree.nodes[0])
         await context.send(embed=utils.make_embed(1, self, context))
 
-    @commands.command()
-    async def define(self, context):
+    @commands.command(name='define',
+                      description='Peruse the Outer Wilds Wiki from the comfort of your own Discord client.'
+                                  '\n\n*In-universe:* Give Esker an article title or search query and they\'ll '
+                                  'hunt around the Ventures archives to find what you\'re looking for.',
+                      brief='Ask about the lore',
+                      aliases=['def', 'wiki'],
+                      pass_context=True)
+    async def define(self, context, *, query=None):
+        if query is not None:
+            # convert their input to field and then generate embed
+            # TODO: not working for most queries - figure out why
+            search = 'https://outerwilds.fandom.com/wiki/Special:Search'
+            # store their text input and url encoded version (nested list for params)
+            self.query = {'query': [query, [('query', urllib.parse.quote(query))]]}
+            async with aiohttp.ClientSession() as session:
+                async with session.get(search, params=self.query['query'][1]) as resp:
+                    # made it to the page unharmed
+                    if resp.status == 200:
+                        body = await resp.text()
+                        search_regex = '<h1 class="unified-search__result__header">\s*<a href="(.+?)"'
+                        # get first matching string - first search result in layout
+                        result_url = re.search(search_regex, body)
+                        if result_url:
+                            # proceed forth with search result
+                            print(result_url.group(1))
+                            async with session.get(result_url.group(1)) as resp2:
+                                body2 = await resp2.text()
+                                print(body2)
+                                extract_regex = ['<meta property="og:site_name" content="(.+?)"/>',
+                                                 '<meta property="og:title" content="(.+?)"/>',
+                                                 '<meta property="og:description" content="(.+?)"/>',
+                                                 '<meta property="og:image" content="(.+?)"/>',
+                                                 '<a accesskey="z" href="//outerwilds.fandom.com" '
+                                                 'class="fandom-community-header__image">\s*<img\s*src="(.+?)"']
+                                extracted = {'name': re.search(extract_regex[0], body2).group(1),
+                                             'title': re.search(extract_regex[1], body2).group(1),
+                                             'description': re.search(extract_regex[2], body2).group(1),
+                                             'image': re.search(extract_regex[3], body2).group(1),
+                                             'icon': re.search(extract_regex[4], body2).group(1),
+                                             'url': result_url.group(1)}
+                                # convert escape chars like apostrophes etc.
+                                for k in extracted:
+                                    val = extracted[k]
+                                    extracted[k] = html.unescape(val)
+
+                                print(extracted)
+                                self.query.update(extracted)
+                        else:
+                            # make Esker display search failure on embed
+                            self.query['url'] = None
+
         await context.send(embed=utils.make_embed(9, self, context))
+        # delete data to avoid affecting future queries
+        self.query = None
 
     @commands.command(name='rock_assn',
                       description='Discover your true Hearthian name!',
