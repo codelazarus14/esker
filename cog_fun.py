@@ -245,6 +245,7 @@ class Fun(commands.Cog):
         # Esker's final words
         emb = utils.make_embed(5, self, context)
         resp = random.choice(self.gaze_responses['end'])
+        print(f"last words: {resp}")
         emb.add_field(name=resp, value="_ _", inline=False)
         await msg.edit(embed=emb)
         await asyncio.sleep(3)
@@ -253,10 +254,9 @@ class Fun(commands.Cog):
         for i in reversed(total_stars):
             if i % 60 != 0:
                 # looks like a smooth curve if you squint at it
-                # TODO: make the entire field be filled by the end
                 if 28 < i % 60 < 32:
                     self.star_chart['stars'][i] = SYMBOL_END[0]
-                if 16 < i % 60 < 44 and i + 60 < len(total_stars):
+                elif 16 < i % 60 < 44 and i + 60 < len(total_stars):
                     self.star_chart['stars'][i+60] = SYMBOL_END[0]
                 elif 8 < i % 60 < 52 and i + 120 < len(total_stars):
                     self.star_chart['stars'][i+120] = SYMBOL_END[0]
@@ -270,6 +270,23 @@ class Fun(commands.Cog):
                 emb.add_field(name=resp, value="_ _", inline=False)
                 await msg.edit(embed=emb)
                 await asyncio.sleep(3)
+        # after sun reaches top of embed text, fill in the remaining
+        for i in reversed(range(len(self.star_chart['stars']) // 3)):
+            if i % 60 != 0:
+                if 16 < i % 60 < 44 and i - 180 >= 0:
+                    self.star_chart['stars'][i-180] = SYMBOL_END[0]
+                elif 8 < i % 60 < 52 and i - 120 >= 0:
+                    self.star_chart['stars'][i-120] = SYMBOL_END[0]
+                elif 2 < i % 60 < 58 and i - 60 >= 0:
+                    self.star_chart['stars'][i-60] = SYMBOL_END[0]
+                else:
+                    self.star_chart['stars'][i] = SYMBOL_END[0]
+            else:
+                emb = utils.make_embed(5, self, context)
+                emb.add_field(name=resp, value="_ _", inline=False)
+                await msg.edit(embed=emb)
+                await asyncio.sleep(3)
+
         # clear esker's last message
         emb = utils.make_embed(5, self, context)
         emb.set_footer(text='_ _', icon_url="_ _")
