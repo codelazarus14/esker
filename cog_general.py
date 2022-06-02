@@ -103,7 +103,7 @@ class General(commands.Cog):
                                 # TODO: maybe just use first paragraph instead of whole description?
                                 extract_regex = ['<meta property="og:site_name" content="(.+?)"/>',
                                                  '<meta property="og:title" content="(.+?)"/>',
-                                                 '<meta property="og:description" content="(.+?)"/>',
+                                                 '<meta name="description" content="(.+?)"/>',
                                                  '<meta property="og:image" content="(.+?)"/>',
                                                  '<a accesskey="z" href="//outerwilds.fandom.com" '
                                                  'class="fandom-community-header__image">\s*<img\s*src="(.+?)"']

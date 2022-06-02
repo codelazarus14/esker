@@ -121,9 +121,10 @@ class Fun(commands.Cog):
                       aliases=['stargaze'],
                       pass_context=True
                       )
-    async def stars(self, context, *, args=None):
+    async def stars(self, context, *, admin_override=None):
         # allow admin to force reset - skips to next loop
-        if args in ['start', 'reset'] and context.author.guild_permissions.administrator:
+        if admin_override in ['start', 'reset'] and context.author.guild_permissions.administrator:
+            # TODO: make this not break the supernova ending
             self.star_chart['is_looping'] = False
 
         if not self.star_chart['is_looping']:

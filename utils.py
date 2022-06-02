@@ -26,11 +26,37 @@ def say_hi():
 
 def say_dialogue():
     """Returns a random piece of Esker's Official Dialogue"""
-    # TODO: replace with Esker's dialogue from Outer Wilds
-    responses = [
-        'I can\'t even remember my lines..'
-    ]
-    return random.choice(responses)
+    responses = {
+        "greetings": [
+            "Oh, hey, it’s you! Ground control didn’t tell me you were launching. Long time no see!\n"
+            "Actually, I guess it’s been a long time since I’ve seen anyone.",
+            "Hi again. Can’t get enough of the moon? ...I’m kidding.",
+            "Don’t go! Uh, I mean, anything else you wanted to ask?", ],
+        "travelers": ["The Lunar Outpost saw more traffic back when our ships were less sophisticated "
+                      "and needed more frequent repairs. Nowadays, it’s mostly used to keep a set of eyes on things."
+                      "\nSometimes Chert comes by to say hi, but Gabbro is Gabbro, and you know how Riebeck feels "
+                      "about “unnecessary spaceflight."],
+        "whistling": ["Probably. Or actually, definitely. The other travelers carry instruments, "
+                      "so they don’t bother whistling.\nYou can pick up their music with a signalscope, you know. "
+                      "Best spot for that is the north pole. Great reception."
+                      "\nThe north pole is marked in red on your mini map, but the Attlerock is a pretty small moon,"
+                      " really. Just go north. You can’t miss it."],
+        "lonely": ["A little. I’m in touch with ground control — Hornfels and Gossan, mostly "
+                   "— and they radio up to chat now and then."],
+        "what": ["Ha ha, very funny. ...Oh, stars above, you’re serious, aren’t you? That’s just depressing."
+                 "\nSigh… Welcome to the Lunar Outpost, which apparently the space program doesn’t bother to "
+                 "teach anyone anymore."
+                 "\nWhen we first started Outer Wilds, travelers used to bring their ships here all the time for "
+                 "repairs. Our spacefaring technology has improved loads since then, but the older ships tended to,"
+                 " uh, fall apart a lot. Like, more than they do now."
+                 "\nUsing the outpost cut down on the number of launches and landings taking place in the village"
+                 " and also the number of fires. Nowadays, though, it’s mostly just me up here raising saplings"
+                 " from Timber Hearth and keeping an eye on things."],
+        "marl": ["Heh, Marl is probably the only one who remembers I’m up here. I should go see the big lug soon."
+                 "\nDon’t tell them about this, but sometimes I throw my Little Scout down to make sure Marl isn’t "
+                 "doing anything stupid. I worry that big tree in the village wouldn’t stand a chance otherwise."]
+    }
+    return random.choice(responses['greetings'])
 
 
 def choose_rock(user_hash):
@@ -82,8 +108,8 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
             case 4:
                 # generate rock name from user id
                 user_hash = abs(hash(context.author.id))
-                embed.add_field(name="_ _",
-                                value=f"**I reckon you'd make a fine {choose_rock(user_hash)}, hatchling!**")
+                embed.add_field(name=f"I reckon you'd make a fine {choose_rock(user_hash)}, hatchling!",
+                                value="_ _")
             case 5:
                 cog: cog_fun.Fun
                 embed.add_field(name="_ _", value=stargazing(cog.star_chart), inline=False)
@@ -123,14 +149,18 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
                 cog: cog_general.General
                 q = cog.query
                 if q is not None:
+                    resp = [f"\"*{q['query'][0]}*\", eh?",
+                            f"\"*{q['query'][0]}*\", hmm. Gotta have something lying around here... a-ha!",
+                            f"I just saw a file on that while going through the archives the other day,"
+                            f" hang on a sec..."]
                     # ['query'][0] is first item in tuple - raw text, [1] is the url encoding
-                    embed.title = f"\"*{q['query'][0]}*\", eh?"
+                    embed.title = random.choice(resp)
                     if q['url']:
-                        embed.description = f"After some digging around, I found this:"
-                        embed.add_field(name=f"{q['title']}:", value=f"{q['description']}", inline=False)
+                        embed.description = f"Hope this is what you were looking for:"
+                        embed.add_field(name=f"{q['title']}:", value=f"`{q['description']}`", inline=False)
                         embed.add_field(name=f"{q['url']}", value="_ _", inline=False)
                         embed.set_image(url=q['image'])
-                        embed.set_footer(text=f"{q['name']} | Accessed {time.asctime()}", icon_url=f"{q['icon']}")
+                        embed.set_footer(text=f"{q['name']} | {time.asctime()}", icon_url=f"{q['icon']}")
                     else:
                         # search query failed on the wiki
                         embed.description = f"Huh. I don't think I have any information on that right now.."
