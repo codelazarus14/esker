@@ -93,7 +93,6 @@ class Fun(commands.Cog):
                     self.curr_audio = f
 
             # voice client handling code from rythm experience
-            # TODO: fix stuttering/audio quality issues like on rythm
             source: discord.AudioSource = discord.FFmpegPCMAudio(to_play)
             if context.voice_client is None:
                 await context.author.voice.channel.connect()
@@ -105,7 +104,14 @@ class Fun(commands.Cog):
                 vc.stop()
             vc.play(source)
 
-            await context.send(embed=utils.make_embed(3, self, context))
+            # avoid audio buffering at start (1-5 seconds of waytoofastslowdown)
+            temp = await context.send(embed=discord.Embed(colour=discord.Color.orange(),
+                                                          description="Buffering -\*cough\*- I mean, uh, one second..."))
+            vc.pause()
+            await asyncio.sleep(2)
+            vc.resume()
+
+            await temp.edit(embed=utils.make_embed(3, self, context))
         else:
             # if not in voice (text response)
             # list of YouTube video ids in order (1-28)
