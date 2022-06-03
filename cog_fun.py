@@ -22,6 +22,7 @@ class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
         self.curr_audio = 'Nothing playing'
+        self.mallow_leaderboard = {}
         self.star_chart = {"is_looping": False, "counter": 9318054,
                            "stars": ["Nobody here but us chickens"], "visible": []}
         """dict of current visible stars in the sky that updates over the course of a loop\n
@@ -51,7 +52,7 @@ class Fun(commands.Cog):
                       pass_context=True
                       )
     async def mallow(self, context):
-        """TODO: marshmallow minigame w pixel art or maybe just numbers for now"""
+        # code is in make_embed() bc it was easier to keep all data in one place
         await context.send(embed=utils.make_embed(2, self, context))
 
     @commands.command(name='tunes',
@@ -65,9 +66,9 @@ class Fun(commands.Cog):
                       )
     async def tunes(self, context: discord.ext.commands.Context, *, arg: str = None):
         # allows users to force disconnect whenever they want
-        if arg is not None:
+        if arg:
             if arg.lower() in ['stop', 'disconnect', 'd']:
-                if context.voice_client is not None and context.voice_client.is_playing():
+                if context.voice_client and context.voice_client.is_playing():
                     await context.voice_client.disconnect()
                     await context.send(embed=discord.Embed(color=discord.Color.orange())
                                        .add_field(name="Okay I hear ya!", value="_ _"))
@@ -77,7 +78,7 @@ class Fun(commands.Cog):
                                    .add_field(name="Sorry, didn't catch that one? Did you mean `e.tunes stop`?",
                                               value="_ _"))
                 return
-        elif context.author.voice is not None:
+        elif context.author.voice:
             # grab file locally - no downloading bc I bought the soundtrack
             fp = 'ost/Outer Wilds - Original Soundtrack/OST/'
             files = os.listdir(os.getcwd() + "/" + fp)

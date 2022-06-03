@@ -95,7 +95,57 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
             case 1:
                 embed.add_field(name=say_dialogue(), value="_ _")
             case 2:
-                embed.add_field(name="NO MALLOWS FOR YOU!", value=f"_ _")
+                cog: cog_fun.Fun
+                args = context.message.content.split()
+                # asking for leaderboard
+                # effective way to pull args out of message
+                if len(args) > 1:
+                    if args[1].lower() in ['leaderboard', 'l']:
+                        embed.title = "Mallow Game Leaderboard"
+                        if len(cog.mallow_leaderboard) > 0:
+                            lead_str = ""
+                            lead_str2 = ""
+                            for user in cog.mallow_leaderboard:
+                                lead_str += f"`{user}`\n"
+                                lead_str2 += f"`{cog.mallow_leaderboard.get(user)}`\n"
+                            embed.add_field(name="User:", value=lead_str)
+                            embed.add_field(name="Score:", value=lead_str2)
+                        else:
+                            embed.add_field(name="_ _", value="No entries yet! Toast some mallows first.")
+                    else:
+                        embed.add_field(name=f"Were you looking for the scores, hatchling?"
+                                             f"\nTry `{args[0]} leaderboard`", value="_ _")
+                # otherwise
+                else:
+                    rnum = random.randint(1, 5)
+                    # TODO: stupid, there should be some way to do this mathematically
+                    res_dict = {1: 1, 2: 2, 3: 3, 4: 2, 5: 1}
+                    res = res_dict[rnum]
+
+                    # response: underdone
+                    if rnum < 3:
+                        embed.add_field(name="Could've left it in a bit longer... oh well.",
+                                        value=f"Underdone: +{res} points")
+                    # perfect toast
+                    elif rnum == 3:
+                        embed.add_field(name="Great job hatchling! Smooth brown outside, nice goopy inside. "
+                                             "\nJust the way I like 'em.",
+                                        value=f"Perfectly toasted: +{res} points")
+                    # overdone
+                    elif rnum < 5:
+                        embed.add_field(name="Hmm. A little crisp for my liking but good enough.",
+                                        value=f"Overdone: +{res} points")
+                    # incinerated
+                    elif rnum == 5:
+                        embed.add_field(name="Oh dear. I think that's more than enough, \nyou can pull it "
+                                             "out of the fire now.\nEating that lump of coal is bad for you, y'know.",
+                                        value=f"Incinerated: +{res} points")
+
+                    # add new mallow points to leaderboard
+                    if context.author in cog.mallow_leaderboard.keys():
+                        res += cog.mallow_leaderboard.get(context.author)
+
+                    cog.mallow_leaderboard.update({context.author: res})
             case 3:
                 # extract track name from filename
                 cog: cog_fun.Fun

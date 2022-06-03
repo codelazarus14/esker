@@ -100,7 +100,6 @@ class General(commands.Cog):
                             async with session.get(result_url.group(1)) as resp2:
                                 body2 = await resp2.text()
                                 print(body2)
-                                # TODO: maybe just use first paragraph instead of whole description?
                                 extract_regex = ['<meta property="og:site_name" content="(.+?)"/>',
                                                  '<meta property="og:title" content="(.+?)"/>',
                                                  '<meta name="description" content="(.+?)"/>',
