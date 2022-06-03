@@ -59,8 +59,10 @@ def skip_to_next(vc: discord.VoiceClient, music_cog):
     if len(music_cog.audio_queue) > 0:
         music_cog.curr_audio = music_cog.audio_queue.pop(0)
         music_cog.curr_audio += (time.time(),)
+        # change source
         vc.source = discord.FFmpegPCMAudio(music_cog.curr_audio[1], **ffmpeg_opts)
         vc.resume()
+        # set return msg to be next song title
         msg = f"[{music_cog.curr_audio[0]['title']}](https://youtube.com/watch?v={music_cog.curr_audio[0]['id']})"
     else:
         vc.stop()

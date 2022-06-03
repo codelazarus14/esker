@@ -69,7 +69,7 @@ class Music(commands.Cog):
             # keep playing audio until queue exhausted
             if not vc.is_playing():
                 utils.play_next(vc, context, self)
-                # TODO: fix audio buffering - use asyncio.sleep()
+                # TODO: fix audio buffering - use asyncio.sleep() and tasks
         else:
             await context.send('User is not in a voice channel')
 
@@ -111,6 +111,7 @@ class Music(commands.Cog):
 
             if not vc.is_playing():
                 utils.play_next(vc, context, self)
+                # TODO: fix audio buffering - use asyncio.sleep() and tasks
         else:
             await context.send('User is not in a voice channel')
 
@@ -205,6 +206,7 @@ class Music(commands.Cog):
         # voting is done - display result embeds and skip if vote passed
         if can_skip:
             next_audio = utils.skip_to_next(vc, self)
+            # empty = False: no audio after current
             if next_audio:
                 embed_update.add_field(name='Now playing:', value=next_audio)
         else:
