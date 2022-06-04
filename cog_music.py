@@ -68,7 +68,7 @@ class Music(commands.Cog):
 
             # keep playing audio until queue exhausted
             if not vc.is_playing():
-                utils.play_next(vc, context, self)
+                utils.play_next(vc, self)
                 # TODO: fix audio buffering - use asyncio.sleep() and tasks
         else:
             await context.send('User is not in a voice channel')
@@ -110,7 +110,7 @@ class Music(commands.Cog):
             self.audio_queue.insert(0, (video, source))
 
             if not vc.is_playing():
-                utils.play_next(vc, context, self)
+                utils.play_next(vc, self)
                 # TODO: fix audio buffering - use asyncio.sleep() and tasks
         else:
             await context.send('User is not in a voice channel')

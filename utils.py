@@ -4,6 +4,7 @@ import time
 
 import requests
 
+import cog_music
 import json
 
 import discord
@@ -39,7 +40,8 @@ async def join_voice_channel(context: discord.ext.commands.Context, user_voice):
     return voice_client
 
 
-def play_next(vc: discord.VoiceClient, context, music_cog):
+def play_next(vc: discord.VoiceClient, music_cog):
+    music_cog: cog_music.Music
     if len(music_cog.audio_queue) == 0:
         logger.log(logging.INFO, '|| Reached end of audio queue')
         return
@@ -48,7 +50,7 @@ def play_next(vc: discord.VoiceClient, context, music_cog):
         music_cog.curr_audio += (time.time(),)
         # curr_audio[2] = play() starting timestamp
         vc.play(discord.FFmpegPCMAudio(music_cog.curr_audio[1], **ffmpeg_opts),
-                after=lambda e: play_next(vc, context, music_cog))
+                after=lambda e: play_next(vc, music_cog))
 
 
 def skip_to_next(vc: discord.VoiceClient, music_cog):
