@@ -200,8 +200,8 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
                 q = cog.query
                 if q is not None:
                     resp = [f"\"*{q['query'][0]}*\", eh?",
-                            f"\"*{q['query'][0]}*\", hmm. Gotta have something lying around here... a-ha!",
-                            f"I just saw a file on that while going through the archives the other day,"
+                            f"\"*{q['query'][0]}*\", hmm. Gotta have something lying around here...",
+                            f"I think I saw something on that while going through the archives the other day,"
                             f" hang on a sec..."]
                     # ['query'][0] is first item in tuple - raw text, [1] is the url encoding
                     embed.title = random.choice(resp)

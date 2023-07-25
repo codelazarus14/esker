@@ -65,7 +65,7 @@ class General(commands.Cog):
                       )
     async def dialogue(self, context):
         """ TODO: figure out how to recreate dialogue system
-             this is honestly such an entangled mess to work through - maybe replace with
+             this is honestly such a tangled mess to work through - maybe replace with
              lucabot-style random line regurgitation """
         # dtree = DialogueTree(dialogue.NODES, 'start')
         # await dtree.evaluate(dtree.nodes[0])
@@ -90,6 +90,8 @@ class General(commands.Cog):
                 async with session.get(search, params=self.query['query'][1]) as resp:
                     # made it to the page unharmed
                     if resp.status == 200:
+                        # TODO: fix parsing html for the link bc this is broken, try
+                        #  https://stackoverflow.com/questions/11804148/parsing-html-to-get-text-inside-an-element"""
                         body = await resp.text()
                         search_regex = '<h1 class="unified-search__result__header">\s*<a href="(.+?)"'
                         # get first matching string - first search result in layout
