@@ -118,7 +118,7 @@ def make_embed(embed_type: int, cog: discord.ext.commands.Cog, context: discord.
                 # otherwise
                 else:
                     rnum = random.randint(1, 5)
-                    # TODO: stupid, there should be some way to do this mathematically
+                    # mapping of randint to score: {1,5} = 1 point, {2,4} = 2 points, {3} = 3 points
                     res_dict = {1: 1, 2: 2, 3: 3, 4: 2, 5: 1}
                     res = res_dict[rnum]
 
