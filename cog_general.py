@@ -18,6 +18,8 @@ class MyHelpCommand(commands.DefaultHelpCommand):
     async def send_bot_help(self, mapping):
         destination = self.get_destination()
         help_emb = utils.make_embed(6, self.cog, self.context)
+        help_emb.set_author(name=f"Showing help",
+                            icon_url=self.context.bot.user.avatar_url)
         help_emb.description = f"\n\nType `{self.clean_prefix}help command` for more info on a command.\n You " \
                                f"can also type `{self.clean_prefix}help category` for more info on a category."
         await destination.send(embed=help_emb)

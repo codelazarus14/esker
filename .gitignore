@@ -3,3 +3,4 @@
 /ost/
 .env
 /run-bot.bat
+*.pyc
